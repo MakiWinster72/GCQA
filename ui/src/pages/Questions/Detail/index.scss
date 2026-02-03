@@ -59,6 +59,21 @@
 
 .answer-item {
   border-top: 1px solid var(--an-answer-item-border-top);
+  transition:
+    box-shadow 220ms ease,
+    background-color 220ms ease,
+    padding 220ms ease,
+    margin 220ms ease;
+}
+
+.answer-item-accepted {
+  border-top: 0;
+  border-radius: 12px;
+  box-shadow:
+    0 33px 22px rgba(var(--bs-primary-rgb), 0.12),
+    0 0 0 2px rgba(var(--bs-primary-rgb), 0.45);
+  padding: 1.25rem 1.5rem;
+  margin: 0.5rem 0 0.75rem;
 }
 
 .smile-btn.active::before {
