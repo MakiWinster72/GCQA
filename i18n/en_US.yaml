@@ -1595,6 +1595,8 @@ ui:
     copied: Copied
     facebook: Share to Facebook
     twitter: Share to X
+    wechat: Share to WeChat
+    wechat_app: Copy to WeChat
   cannot_vote_for_self: You can't vote for your own post.
   modal_confirm:
     title: Error...
