@@ -373,7 +373,7 @@ func (qs *QuestionCommon) FormatQuestionsPage(
 			CreatedAt:        questionInfo.CreatedAt.Unix(),
 			Title:            questionInfo.Title,
 			UrlTitle:         htmltext.UrlTitle(questionInfo.Title),
-			Description:      htmltext.FetchExcerpt(questionInfo.ParsedText, "...", 240),
+			Description:      htmltext.FetchExcerpt(htmltext.StripLeadingBlockquote(questionInfo.ParsedText), "...", 240),
 			Status:           questionInfo.Status,
 			ViewCount:        questionInfo.ViewCount,
 			UniqueViewCount:  questionInfo.UniqueViewCount,
