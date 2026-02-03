@@ -41,6 +41,7 @@ var (
 	reLinkReplace  = " [$1] "
 	reSpace        = regexp.MustCompile(` +`)
 	reSpaceReplace = " "
+	reLeadingQuote = regexp.MustCompile(`(?is)^\s*<blockquote>.*?</blockquote>\s*<hr ?/?>\s*`)
 
 	spaceReplacer = strings.NewReplacer(
 		"\n", " ",
@@ -111,6 +112,13 @@ func cutLongTitle(title string) string {
 // FetchExcerpt return the excerpt from the HTML string
 func FetchExcerpt(html, trimMarker string, limit int) (text string) {
 	return FetchRangedExcerpt(html, trimMarker, 0, limit)
+}
+
+func StripLeadingBlockquote(html string) string {
+	if html == "" {
+		return html
+	}
+	return reLeadingQuote.ReplaceAllString(html, "")
 }
 
 // findFirstMatchedWord returns the first matched word and its index

@@ -1120,7 +1120,7 @@ func (qs *QuestionService) GetQuestion(ctx context.Context, questionID, userID s
 		question.Operation = operation
 	}
 
-	question.Description = htmltext.FetchExcerpt(question.HTML, "...", 240)
+	question.Description = htmltext.FetchExcerpt(htmltext.StripLeadingBlockquote(question.HTML), "...", 240)
 	question.MemberActions = permission.GetQuestionPermission(ctx, userID, question.UserID, question.Status,
 		per.CanEdit, per.CanDelete,
 		per.CanClose, per.CanReopen, per.CanPin, per.CanHide, per.CanUnPin, per.CanShow,
