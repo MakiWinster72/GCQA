@@ -19,7 +19,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Trans, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
 import Row from 'react-bootstrap/Row';
 import dayjs from 'dayjs';
@@ -42,22 +42,9 @@ const Index = () => {
             {t('terms', { keyPrefix: 'nav_menus' })}
           </Link>
 
-          {/* Link to Privacy Policy with right margin for spacing */}
           <Link to="/privacy" className="link-secondary">
             {t('privacy', { keyPrefix: 'nav_menus' })}
           </Link>
-        </div>
-        <div>
-          <Trans i18nKey="footer.build_on" values={{ cc }}>
-            Powered by
-            <a
-              href="https://answer.apache.org"
-              target="_blank"
-              className="link-secondary"
-              rel="noreferrer">
-              Apache Answer
-            </a>
-          </Trans>
         </div>
       </footer>
     </Row>
