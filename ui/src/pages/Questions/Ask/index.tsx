@@ -59,6 +59,7 @@ interface FormDataItem {
   content: Type.FormValue<string>;
   answer_content: Type.FormValue<string>;
   edit_summary: Type.FormValue<string>;
+  searched_related: Type.FormValue<boolean>;
 }
 
 const saveDraft = new SaveDraft({ type: 'question' });
@@ -90,6 +91,11 @@ const Ask = () => {
       isInvalid: false,
       errorMsg: '',
     },
+    searched_related: {
+      value: false,
+      isInvalid: false,
+      errorMsg: '',
+    },
   };
   const { t } = useTranslation('translation', { keyPrefix: 'ask' });
   const [formData, setFormData] = useState<FormDataItem>(initFormData);
@@ -98,6 +104,7 @@ const Ask = () => {
   const [blockState, setBlockState] = useState(false);
   const [focusType, setForceType] = useState('');
   const [hasDraft, setHasDraft] = useState(false);
+  const [searchedRelated, setSearchRelated] = useState(false);
   const resetForm = () => {
     setFormData(initFormData);
     setCheckState(false);
@@ -384,9 +391,16 @@ const Ask = () => {
     event.preventDefault();
     event.stopPropagation();
 
+    const searchStatus = searchedRelated
+      ? t('yes', { keyPrefix: 'btns' })
+      : t('no', { keyPrefix: 'btns' });
+    const searchedRelatedLabel = t('form.fields.searched_related.label');
+    const searchedRelatedLine = `${searchedRelatedLabel}：${searchStatus}`;
+    const contentWithSearchStatus = `> ${searchedRelatedLine}\n\n---\n\n${formData.content.value}`;
+
     const params: Type.QuestionParams = {
       title: formData.title.value,
-      content: formData.content.value,
+      content: contentWithSearchStatus,
       tags: formData.tags.value,
     };
 
@@ -483,6 +497,27 @@ const Ask = () => {
                 {formData.title.errorMsg}
               </Form.Control.Feedback>
               {bool && <SearchQuestion similarQuestions={similarQuestions} />}
+            </Form.Group>
+            <Form.Group controlId="searched-related" className="mb-3">
+              <Form.Label>{t('form.fields.searched_related.label')}</Form.Label>
+              <div>
+                <Form.Check
+                  inline
+                  type="radio"
+                  label={t('yes', { keyPrefix: 'btns' })}
+                  name="searched-related-group"
+                  checked={searchedRelated}
+                  onChange={() => setSearchRelated(true)}
+                />
+                <Form.Check
+                  inline
+                  type="radio"
+                  label={t('no', { keyPrefix: 'btns' })}
+                  name="searched-related-group"
+                  checked={!searchedRelated}
+                  onChange={() => setSearchRelated(false)}
+                />
+              </div>
             </Form.Group>
             <Form.Group controlId="content">
               <Form.Label>{t('form.fields.body.label')}</Form.Label>

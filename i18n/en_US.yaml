@@ -1184,6 +1184,9 @@ ui:
           label: Answer
           msg:
             empty: Answer cannot be empty.
+        searched_related_prefix: Yes, I have tried searching for related questions.
+        searched_related:
+          label: Have you tried searching for related questions?
         edit_summary:
           label: Edit summary
           placeholder: >-
@@ -1523,6 +1526,8 @@ ui:
     discard_draft: Discard draft
     pinned: Pinned
     all: All
+    yes: Yes
+    no: No
     question: Question
     answer: Answer
     comment: Comment
@@ -2482,5 +2487,3 @@ ui:
     copy: Copy to clipboard
     copied: Copied
     external_content_warning: External images/media are not displayed.
-
-

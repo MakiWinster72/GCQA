@@ -91,7 +91,16 @@ const addI18nResource = async (langName) => {
     }
   } else if (storageResource && storageResource.lng === res.lng) {
     res.resources = storageResource.resources;
-    pullLanguageConf(res);
+    if (res.resources) {
+      i18next.addResourceBundle(
+        res.lng,
+        'translation',
+        res.resources,
+        true,
+        true,
+      );
+    }
+    await pullLanguageConf(res);
   } else {
     await pullLanguageConf(res);
   }

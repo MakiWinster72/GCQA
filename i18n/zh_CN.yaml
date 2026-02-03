@@ -1167,6 +1167,9 @@ ui:
           label: 回答内容
           msg:
             empty: 回答内容不能为空
+        searched_related_prefix: 是的，我已经尝试搜索相关问题
+        searched_related:
+          label: 您是否已经尝试搜索相关问题？
         edit_summary:
           label: 编辑备注
           placeholder: >-
@@ -1476,13 +1479,13 @@ ui:
     edit: 编辑
     save: 保存
     delete: 删除
-    undelete: 撤消删除
-    list: 列表显示
-    unlist: 列表隐藏
+    undelete: 恢复
+    list: 列出
+    unlist: 隐藏
     unlisted: 已隐藏
     login: 登录
     signup: 注册
-    logout: 退出
+    logout: 退出登录
     verify: 验证
     create: 创建
     approve: 批准
@@ -1491,6 +1494,8 @@ ui:
     discard_draft: 丢弃草稿
     pinned: 已置顶
     all: 全部
+    yes: 是
+    no: 否
     question: 问题
     answer: 回答
     comment: 评论
@@ -2353,7 +2358,7 @@ ui:
     proposed: 提案
     question_edit: 问题编辑
     answer_edit: 回答编辑
-    tag_edit: '标签管理: 编辑标签'
+    tag_edit: "标签管理: 编辑标签"
     edit_summary: 编辑备注
     edit_question: 编辑问题
     edit_answer: 编辑回答
@@ -2382,7 +2387,7 @@ ui:
     upvote: 点赞
     accept: 采纳
     cancelled: 已取消
-    commented: '评论:'
+    commented: "评论:"
     rollback: 回滚
     edited: 最后编辑于
     answered: 回答于
@@ -2446,5 +2451,3 @@ ui:
     copy: 复制到剪贴板
     copied: 已复制
     external_content_warning: 外部图像/媒体未显示。
-
-
