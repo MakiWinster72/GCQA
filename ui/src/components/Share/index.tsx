@@ -21,9 +21,9 @@ import { memo, FC, useState, useEffect } from 'react';
 import { Dropdown, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
-import { FacebookShareButton, TwitterShareButton } from 'next-share';
 import copy from 'copy-to-clipboard';
 import classNames from 'classnames';
+import QrCode from 'qrcode';
 
 import { BASE_ORIGIN } from '@/router/alias';
 import { loggedUserInfoStore } from '@/stores';
@@ -43,6 +43,7 @@ const Index: FC<IProps> = ({ type, qid, aid, title, className, mode }) => {
   const [show, setShow] = useState(false);
   const [showTip, setShowTip] = useState(false);
   const [canSystemShare, setSystemShareState] = useState(false);
+  const [wechatQrCode, setWechatQrCode] = useState('');
   const { t } = useTranslation();
   let baseUrl =
     type === 'question'
@@ -57,15 +58,27 @@ const Index: FC<IProps> = ({ type, qid, aid, title, className, mode }) => {
     setShow(false);
   };
 
+  const getCopyText = () => {
+    if (title) {
+      return `${title} ${baseUrl}`;
+    }
+    return baseUrl;
+  };
+
   const handleCopy = (evt) => {
     evt.preventDefault();
     evt.stopPropagation();
-    let copyText = baseUrl;
-    if (title) {
-      copyText = `${title} ${baseUrl}`;
-    }
-    copy(copyText);
+    copy(getCopyText());
     setShowTip(true);
+    setTimeout(closeShare, 1000);
+  };
+
+  const handleWeChatAppShare = (evt) => {
+    evt.preventDefault();
+    evt.stopPropagation();
+    copy(getCopyText());
+    setShowTip(true);
+    window.open('weixin://', '_blank', 'noopener,noreferrer');
     setTimeout(closeShare, 1000);
   };
 
@@ -81,14 +94,47 @@ const Index: FC<IProps> = ({ type, qid, aid, title, className, mode }) => {
       setSystemShareState(true);
     }
   }, []);
+  useEffect(() => {
+    QrCode.toDataURL(baseUrl, { width: 160, margin: 0 }, (err, url) => {
+      if (!err && url) {
+        setWechatQrCode(url);
+      }
+    });
+  }, [baseUrl]);
+
+  const qrSize = mode === 'mobile' ? 120 : 160;
+  const shareItems = (
+    <>
+      <OverlayTrigger
+        trigger="click"
+        placement="left"
+        show={showTip}
+        overlay={<Tooltip>{t('share.copied')}</Tooltip>}>
+        <Dropdown.Item onClick={handleCopy} eventKey="copy">
+          {t('share.copy')}
+        </Dropdown.Item>
+      </OverlayTrigger>
+      <Dropdown.Item onClick={handleWeChatAppShare} eventKey="wechat-app">
+        {t('share.wechat_app')}
+      </Dropdown.Item>
+      {canSystemShare && (
+        <Dropdown.Item onClick={systemShare}>{t('share.via')}</Dropdown.Item>
+      )}
+      <Dropdown.ItemText className="px-3 py-2">
+        {wechatQrCode && (
+          <img
+            src={wechatQrCode}
+            alt={t('share.wechat')}
+            width={qrSize}
+            height={qrSize}
+          />
+        )}
+      </Dropdown.ItemText>
+    </>
+  );
 
   if (mode === 'mobile') {
-    if (canSystemShare) {
-      return (
-        <Dropdown.Item onClick={systemShare}>{t('share.name')}</Dropdown.Item>
-      );
-    }
-    return null;
+    return shareItems;
   }
   return (
     <Dropdown show={show} onToggle={closeShare}>
@@ -100,36 +146,7 @@ const Index: FC<IProps> = ({ type, qid, aid, title, className, mode }) => {
         style={{ lineHeight: '23px' }}>
         {t('share.name')}
       </Dropdown.Toggle>
-      <Dropdown.Menu style={{ minWidth: '195px' }}>
-        <OverlayTrigger
-          trigger="click"
-          placement="left"
-          show={showTip}
-          overlay={<Tooltip>{t('share.copied')}</Tooltip>}>
-          <Dropdown.Item onClick={handleCopy} eventKey="copy">
-            {t('share.copy')}
-          </Dropdown.Item>
-        </OverlayTrigger>
-        <Dropdown.Item eventKey="facebook">
-          <FacebookShareButton
-            title={title}
-            url={baseUrl}
-            className="w-100 py-1 px-3 text-start">
-            {t('share.facebook')}
-          </FacebookShareButton>
-        </Dropdown.Item>
-        <Dropdown.Item>
-          <TwitterShareButton
-            title={title}
-            url={baseUrl}
-            className="w-100 py-1 px-3 text-start">
-            {t('share.twitter')}
-          </TwitterShareButton>
-        </Dropdown.Item>
-        {canSystemShare && (
-          <Dropdown.Item onClick={systemShare}>{t('share.via')}</Dropdown.Item>
-        )}
-      </Dropdown.Menu>
+      <Dropdown.Menu style={{ minWidth: '195px' }}>{shareItems}</Dropdown.Menu>
     </Dropdown>
   );
 };

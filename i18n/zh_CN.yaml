@@ -1563,6 +1563,8 @@ ui:
     copied: 已复制
     facebook: 分享到 Facebook
     twitter: 分享到 X
+    wechat: 分享到微信
+    wechat_app: 复制到微信
   cannot_vote_for_self: 你不能给自己的帖子投票。
   modal_confirm:
     title: 发生错误...
