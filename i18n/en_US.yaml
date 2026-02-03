@@ -1184,9 +1184,10 @@ ui:
           label: Answer
           msg:
             empty: Answer cannot be empty.
-        searched_related_prefix: Yes, I have tried searching for related questions.
         searched_related:
-          label: Have you tried searching for related questions?
+          label: I have already tried searching for related questions
+        class_group_unresolved:
+          label: I confirm the class notification group cannot solve the current problem
         edit_summary:
           label: Edit summary
           placeholder: >-

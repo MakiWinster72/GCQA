@@ -105,6 +105,7 @@ const Ask = () => {
   const [focusType, setForceType] = useState('');
   const [hasDraft, setHasDraft] = useState(false);
   const [searchedRelated, setSearchRelated] = useState(false);
+  const [classGroupUnresolved, setClassGroupUnresolved] = useState(false);
   const resetForm = () => {
     setFormData(initFormData);
     setCheckState(false);
@@ -394,9 +395,14 @@ const Ask = () => {
     const searchStatus = searchedRelated
       ? t('yes', { keyPrefix: 'btns' })
       : t('no', { keyPrefix: 'btns' });
+    const classGroupStatus = classGroupUnresolved
+      ? t('yes', { keyPrefix: 'btns' })
+      : t('no', { keyPrefix: 'btns' });
     const searchedRelatedLabel = t('form.fields.searched_related.label');
+    const classGroupLabel = t('form.fields.class_group_unresolved.label');
     const searchedRelatedLine = `${searchedRelatedLabel}：${searchStatus}`;
-    const contentWithSearchStatus = `> ${searchedRelatedLine}\n\n---\n\n${formData.content.value}`;
+    const classGroupLine = `${classGroupLabel}：${classGroupStatus}`;
+    const contentWithSearchStatus = `> ${searchedRelatedLine}\n> ${classGroupLine}\n\n---\n\n${formData.content.value}`;
 
     const params: Type.QuestionParams = {
       title: formData.title.value,
@@ -516,6 +522,29 @@ const Ask = () => {
                   name="searched-related-group"
                   checked={!searchedRelated}
                   onChange={() => setSearchRelated(false)}
+                />
+              </div>
+            </Form.Group>
+            <Form.Group controlId="class-group-unresolved" className="mb-3">
+              <Form.Label>
+                {t('form.fields.class_group_unresolved.label')}
+              </Form.Label>
+              <div>
+                <Form.Check
+                  inline
+                  type="radio"
+                  label={t('yes', { keyPrefix: 'btns' })}
+                  name="class-group-unresolved-group"
+                  checked={classGroupUnresolved}
+                  onChange={() => setClassGroupUnresolved(true)}
+                />
+                <Form.Check
+                  inline
+                  type="radio"
+                  label={t('no', { keyPrefix: 'btns' })}
+                  name="class-group-unresolved-group"
+                  checked={!classGroupUnresolved}
+                  onChange={() => setClassGroupUnresolved(false)}
                 />
               </div>
             </Form.Group>

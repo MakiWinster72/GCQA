@@ -1167,9 +1167,10 @@ ui:
           label: 回答内容
           msg:
             empty: 回答内容不能为空
-        searched_related_prefix: 是的，我已经尝试搜索相关问题
         searched_related:
-          label: 您是否已经尝试搜索相关问题？
+          label: 我已经尝试搜索相关问题
+        class_group_unresolved:
+          label: 我确认班级通知群无法解决当前问题
         edit_summary:
           label: 编辑备注
           placeholder: >-
