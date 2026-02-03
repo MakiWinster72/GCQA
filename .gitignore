@@ -36,3 +36,7 @@ dist/
 
 # Environment variables
 .env
+
+# AI IDE
+AGENTS.md
+.marscode
