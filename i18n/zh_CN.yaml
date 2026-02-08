@@ -1146,6 +1146,7 @@ ui:
       title: 提问前请确认
       select_placeholder: 请选择
       text_placeholder: 请填写
+      multi_hint: (可多选)
       required: 该项必填。
     form:
       fields:

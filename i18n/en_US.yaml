@@ -1163,6 +1163,7 @@ ui:
       title: Before you ask
       select_placeholder: Select an option
       text_placeholder: Enter your answer
+      multi_hint: (multiple choice)
       required: This field is required.
     form:
       fields:

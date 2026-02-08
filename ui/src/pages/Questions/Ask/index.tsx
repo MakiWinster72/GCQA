@@ -601,7 +601,17 @@ const Ask = () => {
                       key={item.id}
                       controlId={`ask-check-${item.id}`}
                       className="mb-3">
-                      <Form.Label>{item.title}</Form.Label>
+                      <Form.Label>
+                        {item.required && (
+                          <span className="text-danger">*</span>
+                        )}
+                        {item.title}
+                        {item.type === 'multi' && (
+                          <span className="ms-1 text-muted">
+                            {t('preset_questions.multi_hint')}
+                          </span>
+                        )}
+                      </Form.Label>
                       {item.type === 'select' ? (
                         <Form.Select
                           value={String(value)}
