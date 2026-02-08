@@ -328,6 +328,19 @@ img[src=''] {
   }
 }
 
+.question-checks {
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+.question-checks__label,
+.question-checks__value {
+  color: var(--bs-secondary-color);
+}
+
+.question-checks__options .btn {
+  border-radius: 999px;
+}
+
 .upload-img-wrap {
   flex-grow: 1;
   height: 128px;

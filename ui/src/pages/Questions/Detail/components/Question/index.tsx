@@ -51,6 +51,8 @@ const Index: FC<Props> = ({ data, initPage, hasAnswer, isLogged }) => {
   const [searchParams] = useSearchParams();
   const [followed, setFollowed] = useState(data?.is_followed);
   const ref = useRef<HTMLDivElement>(null);
+  const askChecks = Array.isArray(data?.ask_checks) ? data.ask_checks : [];
+  const showQuestionChecks = askChecks.length > 0;
 
   useRenderHtmlPlugin(ref.current);
 
@@ -158,6 +160,34 @@ const Index: FC<Props> = ({ data, initPage, hasAnswer, isLogged }) => {
       </div>
 
       <ImgViewer>
+        {showQuestionChecks && (
+          <div className="question-checks mb-3 pb-3 small">
+            {askChecks.map((item) => {
+              let display = item.answer || '-';
+              if (item.type === 'multi' && item.answer) {
+                const parts = item.answer
+                  .split(',')
+                  .map((part) => part.trim())
+                  .filter(Boolean);
+                if (parts.length > 0) {
+                  display = parts
+                    .map((part, index) => `${index + 1}. ${part}`)
+                    .join(' ');
+                }
+              }
+              return (
+                <div
+                  className="d-flex flex-wrap align-items-center"
+                  key={item.id}>
+                  <span className="me-2 question-checks__label">
+                    {item.title}
+                  </span>
+                  <span className="question-checks__value">{display}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
         <article
           ref={ref}
           className="fmt text-break text-wrap last-p mb-4"
