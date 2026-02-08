@@ -1159,6 +1159,11 @@ ui:
     default_reason: Edit question
     default_first_reason: Create question
     similar_questions: Similar questions
+    preset_questions:
+      title: Before you ask
+      select_placeholder: Select an option
+      text_placeholder: Enter your answer
+      required: This field is required.
     form:
       fields:
         revision:
@@ -1813,6 +1818,7 @@ ui:
     contents: Contents
     questions: Questions
     answers: Answers
+    preset_questions: Preset Questions
     users: Users
     badges: Badges
     flags: Flags
@@ -2034,6 +2040,20 @@ ui:
       pending: Pending
       filter:
         placeholder: "Filter by title, question:id"
+      preset_questions:
+        page_title: Preset Questions
+        question_label: Question
+        type_label: Type
+        required_label: Required
+        options_label: Options
+        options_hint: One option per line
+        type_select: Select
+        type_multi: Multi-select
+        type_text: Text
+        add: Add
+        save: Save
+        remove: Remove
+        validation_error: Please complete required fields.
     answers:
       page_title: Answers
       post: Post

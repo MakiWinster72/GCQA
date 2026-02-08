@@ -109,9 +109,18 @@ type SiteWriteResp SiteWriteReq
 
 // SiteQuestionsReq site questions settings request
 type SiteQuestionsReq struct {
-	MinimumTags    int  `validate:"omitempty,gte=0,lte=5" json:"min_tags"`
-	MinimumContent int  `validate:"omitempty,gte=0,lte=65535" json:"min_content"`
-	RestrictAnswer bool `validate:"omitempty" json:"restrict_answer"`
+	MinimumTags    int                    `validate:"omitempty,gte=0,lte=5" json:"min_tags"`
+	MinimumContent int                    `validate:"omitempty,gte=0,lte=65535" json:"min_content"`
+	RestrictAnswer bool                   `validate:"omitempty" json:"restrict_answer"`
+	AskChecks      []*SiteQuestionAskItem `validate:"omitempty,dive" json:"ask_checks"`
+}
+
+type SiteQuestionAskItem struct {
+	ID       string   `json:"id"`
+	Title    string   `json:"title"`
+	Type     string   `json:"type"`
+	Required bool     `json:"required"`
+	Options  []string `json:"options"`
 }
 
 // SiteAdvancedReq site advanced settings request

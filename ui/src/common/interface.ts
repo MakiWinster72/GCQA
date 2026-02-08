@@ -83,6 +83,9 @@ export interface QuestionParams extends ImgCodeReq {
   url_title?: string;
   content: string;
   tags: Tag[];
+  searched_related?: boolean;
+  class_group_unresolved?: boolean;
+  ask_checks?: AskCheckAnswer[];
 }
 
 export interface QuestionWithAnswer extends QuestionParams {
@@ -254,6 +257,7 @@ export interface QuestionDetailRes {
   answered: boolean;
   collected: boolean;
   answer_ids: string[];
+  ask_checks?: AskCheckAnswer[];
 
   [prop: string]: any;
 }
@@ -884,6 +888,24 @@ export interface AdminQuestionSetting {
   min_tags: number;
   min_content: number;
   restrict_answer: boolean;
+  ask_checks?: AskCheckConfig[];
+}
+
+export type AskCheckType = 'select' | 'multi' | 'text';
+
+export interface AskCheckConfig {
+  id: string;
+  title: string;
+  type: AskCheckType;
+  required: boolean;
+  options?: string[];
+}
+
+export interface AskCheckAnswer {
+  id: string;
+  title: string;
+  type: AskCheckType;
+  answer: string;
 }
 
 export interface AdminTagsSetting {

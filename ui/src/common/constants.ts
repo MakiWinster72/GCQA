@@ -99,6 +99,7 @@ export const ADMIN_NAV_MENUS = [
     icon: 'file-earmark-text-fill',
     children: [
       { name: 'questions', path: 'qa/questions', pathPrefix: 'qa/' },
+      { name: 'preset_questions', path: 'qa/preset-questions' },
       { name: 'tags', path: 'tags/settings', pathPrefix: 'tags/' },
     ],
   },

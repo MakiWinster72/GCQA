@@ -31,6 +31,7 @@ export type QuestionDraft = {
     content: string;
     tags: any[];
     answer_content: string;
+    ask_checks?: { id: string; answer: string }[];
   };
   callback?: () => void;
 };

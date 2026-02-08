@@ -45,6 +45,7 @@ const Index = create<IProps>((set) => ({
     max_image_megapixel: 40,
     authorized_image_extensions: [],
     authorized_attachment_extensions: [],
+    ask_checks: [],
   },
   update: (params) =>
     set((state) => {

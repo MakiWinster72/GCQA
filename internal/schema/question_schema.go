@@ -83,7 +83,10 @@ type QuestionAdd struct {
 	// html
 	HTML string `json:"-"`
 	// tags
-	Tags []*TagItem `validate:"dive" json:"tags"`
+	Tags                 []*TagItem                `validate:"dive" json:"tags"`
+	SearchedRelated      bool                      `json:"searched_related"`
+	ClassGroupUnresolved bool                      `json:"class_group_unresolved"`
+	AskChecks            []*QuestionAskCheckAnswer `json:"ask_checks"`
 	// user id
 	UserID string `json:"-"`
 	QuestionPermission
@@ -113,7 +116,10 @@ type QuestionAddByAnswer struct {
 	AnswerContent string `validate:"required,notblank,gte=6,lte=65535" json:"answer_content"`
 	AnswerHTML    string `json:"-"`
 	// tags
-	Tags []*TagItem `validate:"dive" json:"tags"`
+	Tags                 []*TagItem                `validate:"dive" json:"tags"`
+	SearchedRelated      bool                      `json:"searched_related"`
+	ClassGroupUnresolved bool                      `json:"class_group_unresolved"`
+	AskChecks            []*QuestionAskCheckAnswer `json:"ask_checks"`
 	// user id
 	UserID              string   `json:"-"`
 	MentionUsernameList []string `validate:"omitempty" json:"mention_username_list"`
@@ -263,10 +269,26 @@ type QuestionInfoResp struct {
 	Collected            bool           `json:"collected"`
 	VoteStatus           string         `json:"vote_status"`
 	IsFollowed           bool           `json:"is_followed"`
+	SearchedRelated      *bool                     `json:"searched_related,omitempty"`
+	ClassGroupUnresolved *bool                     `json:"class_group_unresolved,omitempty"`
+	AskChecks            []*QuestionAskCheckAnswer `json:"ask_checks,omitempty"`
 
 	// MemberActions
 	MemberActions  []*PermissionMemberAction `json:"member_actions"`
 	ExtendsActions []*PermissionMemberAction `json:"extends_actions"`
+}
+
+type QuestionAskCheckMeta struct {
+	SearchedRelated      *bool                     `json:"searched_related,omitempty"`
+	ClassGroupUnresolved *bool                     `json:"class_group_unresolved,omitempty"`
+	AskChecks            []*QuestionAskCheckAnswer `json:"ask_checks"`
+}
+
+type QuestionAskCheckAnswer struct {
+	ID     string `json:"id"`
+	Title  string `json:"title"`
+	Type   string `json:"type"`
+	Answer string `json:"answer"`
 }
 
 // UpdateQuestionResp update question resp

@@ -59,7 +59,6 @@ interface FormDataItem {
   content: Type.FormValue<string>;
   answer_content: Type.FormValue<string>;
   edit_summary: Type.FormValue<string>;
-  searched_related: Type.FormValue<boolean>;
 }
 
 const saveDraft = new SaveDraft({ type: 'question' });
@@ -91,11 +90,6 @@ const Ask = () => {
       isInvalid: false,
       errorMsg: '',
     },
-    searched_related: {
-      value: false,
-      isInvalid: false,
-      errorMsg: '',
-    },
   };
   const { t } = useTranslation('translation', { keyPrefix: 'ask' });
   const [formData, setFormData] = useState<FormDataItem>(initFormData);
@@ -104,12 +98,18 @@ const Ask = () => {
   const [blockState, setBlockState] = useState(false);
   const [focusType, setForceType] = useState('');
   const [hasDraft, setHasDraft] = useState(false);
-  const [searchedRelated, setSearchRelated] = useState(false);
-  const [classGroupUnresolved, setClassGroupUnresolved] = useState(false);
+  const [askCheckAnswers, setAskCheckAnswers] = useState<
+    Record<string, string | string[]>
+  >({});
+  const [askCheckErrors, setAskCheckErrors] = useState<Record<string, string>>(
+    {},
+  );
   const resetForm = () => {
     setFormData(initFormData);
     setCheckState(false);
     setForceType('');
+    setAskCheckAnswers({});
+    setAskCheckErrors({});
   };
   const [similarQuestions, setSimilarQuestions] = useState([]);
 
@@ -130,6 +130,32 @@ const Ask = () => {
     });
   };
   const writeInfo = writeSettingStore((state) => state.write);
+  const askChecks = writeInfo.ask_checks || [];
+
+  useEffect(() => {
+    setAskCheckErrors({});
+    setAskCheckAnswers((prev) => {
+      const next: Record<string, string | string[]> = {};
+      askChecks.forEach((item) => {
+        const value = prev[item.id];
+        if (value) {
+          if (item.type === 'multi') {
+            if (Array.isArray(value)) {
+              next[item.id] = value;
+            } else {
+              next[item.id] = value
+                .split(',')
+                .map((opt) => opt.trim())
+                .filter(Boolean);
+            }
+          } else if (!Array.isArray(value)) {
+            next[item.id] = value;
+          }
+        }
+      });
+      return next;
+    });
+  }, [askChecks]);
 
   const isEdit = qid !== undefined;
 
@@ -170,6 +196,15 @@ const Ask = () => {
           formData.content.value = draft.content;
           formData.tags.value = draft.tags;
           formData.answer_content.value = draft.answer_content;
+          if (draft.ask_checks) {
+            const answers = draft.ask_checks.reduce<
+              Record<string, string | string[]>
+            >((acc, item) => {
+              acc[item.id] = item.answer;
+              return acc;
+            }, {});
+            setAskCheckAnswers(answers);
+          }
           setCheckState(Boolean(draft.answer_content));
           setHasDraft(true);
         }
@@ -209,7 +244,8 @@ const Ask = () => {
       title.value ||
       tags.value.length > 0 ||
       content.value ||
-      answer_content.value
+      answer_content.value ||
+      Object.keys(askCheckAnswers).length > 0
     ) {
       // save draft
       saveDraft.save({
@@ -218,6 +254,10 @@ const Ask = () => {
           tags: tags.value,
           content: content.value,
           answer_content: answer_content.value,
+          ask_checks: Object.entries(askCheckAnswers).map(([id, answer]) => ({
+            id,
+            answer: Array.isArray(answer) ? answer.join(', ') : answer,
+          })),
         },
         callback: () => setHasDraft(true),
       });
@@ -226,7 +266,7 @@ const Ask = () => {
       removeDraft();
       setBlockState(false);
     }
-  }, [formData]);
+  }, [formData, askCheckAnswers]);
 
   usePromptWithUnload({
     when: blockState,
@@ -291,6 +331,17 @@ const Ask = () => {
       ...prev,
       answer_content: { value, errorMsg: '', isInvalid: false },
     }));
+
+  const handleAskCheckChange = (id: string, value: string | string[]) => {
+    setAskCheckAnswers((prev) => ({ ...prev, [id]: value }));
+    if (askCheckErrors[id]) {
+      setAskCheckErrors((prev) => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+    }
+  };
 
   const handleSummaryChange = (evt: React.ChangeEvent<HTMLInputElement>) =>
     setFormData({
@@ -392,23 +443,56 @@ const Ask = () => {
     event.preventDefault();
     event.stopPropagation();
 
-    const searchStatus = searchedRelated
-      ? t('yes', { keyPrefix: 'btns' })
-      : t('no', { keyPrefix: 'btns' });
-    const classGroupStatus = classGroupUnresolved
-      ? t('yes', { keyPrefix: 'btns' })
-      : t('no', { keyPrefix: 'btns' });
-    const searchedRelatedLabel = t('form.fields.searched_related.label');
-    const classGroupLabel = t('form.fields.class_group_unresolved.label');
-    const searchedRelatedLine = `${searchedRelatedLabel}：${searchStatus}`;
-    const classGroupLine = `${classGroupLabel}：${classGroupStatus}`;
-    const contentWithSearchStatus = `> ${searchedRelatedLine}\n> ${classGroupLine}\n\n---\n\n${formData.content.value}`;
+    if (!isEdit && askChecks.length > 0) {
+      const missing = askChecks.filter((item) => {
+        if (!item.required) {
+          return false;
+        }
+        const value = askCheckAnswers[item.id];
+        if (Array.isArray(value)) {
+          return value.length === 0;
+        }
+        return !value?.trim();
+      });
+      if (missing.length > 0) {
+        const errors = missing.reduce<Record<string, string>>((acc, item) => {
+          acc[item.id] = t('preset_questions.required');
+          return acc;
+        }, {});
+        setAskCheckErrors(errors);
+        const first = document.getElementById(`ask-check-${missing[0].id}`);
+        if (first) {
+          scrollToElementTop(first);
+        }
+        return;
+      }
+    }
+
+    const askCheckPayload = askChecks.map((item) => {
+      const value = askCheckAnswers[item.id];
+      let answer = '';
+      if (Array.isArray(value)) {
+        answer = value.join(', ');
+      } else if (value) {
+        answer = value.trim();
+      }
+      return {
+        id: item.id,
+        title: item.title,
+        type: item.type,
+        answer,
+      };
+    });
 
     const params: Type.QuestionParams = {
       title: formData.title.value,
-      content: contentWithSearchStatus,
+      content: formData.content.value,
       tags: formData.tags.value,
+      ask_checks: askCheckPayload,
     };
+    if (isEdit) {
+      delete params.ask_checks;
+    }
 
     if (isEdit) {
       if (!editCaptcha) {
@@ -504,50 +588,84 @@ const Ask = () => {
               </Form.Control.Feedback>
               {bool && <SearchQuestion similarQuestions={similarQuestions} />}
             </Form.Group>
-            <Form.Group controlId="searched-related" className="mb-3">
-              <Form.Label>{t('form.fields.searched_related.label')}</Form.Label>
-              <div>
-                <Form.Check
-                  inline
-                  type="radio"
-                  label={t('yes', { keyPrefix: 'btns' })}
-                  name="searched-related-group"
-                  checked={searchedRelated}
-                  onChange={() => setSearchRelated(true)}
-                />
-                <Form.Check
-                  inline
-                  type="radio"
-                  label={t('no', { keyPrefix: 'btns' })}
-                  name="searched-related-group"
-                  checked={!searchedRelated}
-                  onChange={() => setSearchRelated(false)}
-                />
+            {!isEdit && askChecks.length > 0 && (
+              <div className="mb-3">
+                <div className="mb-2 fw-semibold">
+                  {t('preset_questions.title')}
+                </div>
+                {askChecks.map((item) => {
+                  const errorMsg = askCheckErrors[item.id];
+                  const value = askCheckAnswers[item.id] || '';
+                  return (
+                    <Form.Group
+                      key={item.id}
+                      controlId={`ask-check-${item.id}`}
+                      className="mb-3">
+                      <Form.Label>{item.title}</Form.Label>
+                      {item.type === 'select' ? (
+                        <Form.Select
+                          value={String(value)}
+                          isInvalid={Boolean(errorMsg)}
+                          onChange={(e) =>
+                            handleAskCheckChange(item.id, e.target.value)
+                          }>
+                          <option value="">
+                            {t('preset_questions.select_placeholder')}
+                          </option>
+                          {(item.options || []).map((opt) => (
+                            <option key={opt} value={opt}>
+                              {opt}
+                            </option>
+                          ))}
+                        </Form.Select>
+                      ) : item.type === 'multi' ? (
+                        <div className="question-checks__options">
+                          {(item.options || []).map((opt) => {
+                            const selected = Array.isArray(value)
+                              ? value.includes(opt)
+                              : false;
+                            return (
+                              <Button
+                                key={opt}
+                                type="button"
+                                variant={
+                                  selected ? 'primary' : 'outline-secondary'
+                                }
+                                size="sm"
+                                className="me-2 mb-2"
+                                onClick={() => {
+                                  const next = Array.isArray(value)
+                                    ? value.filter((v) => v !== opt)
+                                    : [];
+                                  if (!selected) {
+                                    next.push(opt);
+                                  }
+                                  handleAskCheckChange(item.id, next);
+                                }}>
+                                {opt}
+                              </Button>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <Form.Control
+                          type="text"
+                          value={String(value)}
+                          isInvalid={Boolean(errorMsg)}
+                          placeholder={t('preset_questions.text_placeholder')}
+                          onChange={(e) =>
+                            handleAskCheckChange(item.id, e.target.value)
+                          }
+                        />
+                      )}
+                      <Form.Control.Feedback type="invalid">
+                        {errorMsg}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+                  );
+                })}
               </div>
-            </Form.Group>
-            <Form.Group controlId="class-group-unresolved" className="mb-3">
-              <Form.Label>
-                {t('form.fields.class_group_unresolved.label')}
-              </Form.Label>
-              <div>
-                <Form.Check
-                  inline
-                  type="radio"
-                  label={t('yes', { keyPrefix: 'btns' })}
-                  name="class-group-unresolved-group"
-                  checked={classGroupUnresolved}
-                  onChange={() => setClassGroupUnresolved(true)}
-                />
-                <Form.Check
-                  inline
-                  type="radio"
-                  label={t('no', { keyPrefix: 'btns' })}
-                  name="class-group-unresolved-group"
-                  checked={!classGroupUnresolved}
-                  onChange={() => setClassGroupUnresolved(false)}
-                />
-              </div>
-            </Form.Group>
+            )}
             <Form.Group controlId="content">
               <Form.Label>{t('form.fields.body.label')}</Form.Label>
               <Editor

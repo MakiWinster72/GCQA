@@ -386,6 +386,10 @@ func (qs *QuestionService) AddQuestion(ctx context.Context, req *schema.Question
 	if err != nil {
 		return
 	}
+	metaValue, _ := json.Marshal(schema.QuestionAskCheckMeta{
+		AskChecks: req.AskChecks,
+	})
+	_ = qs.metaService.AddMeta(ctx, question.ID, entity.QuestionAskCheckMetaKey, string(metaValue))
 	question.Status = qs.reviewService.AddQuestionReview(ctx, question, req.Tags, req.IP, req.UserAgent)
 	if err := qs.questionRepo.UpdateQuestionStatus(ctx, question.ID, question.Status); err != nil {
 		return nil, err

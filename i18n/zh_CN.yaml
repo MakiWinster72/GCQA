@@ -1142,6 +1142,11 @@ ui:
     default_reason: 编辑问题
     default_first_reason: 创建问题
     similar_questions: 相似问题
+    preset_questions:
+      title: 提问前请确认
+      select_placeholder: 请选择
+      text_placeholder: 请填写
+      required: 该项必填。
     form:
       fields:
         revision:
@@ -1775,6 +1780,7 @@ ui:
     contents: 内容管理
     questions: 问题
     answers: 回答
+    preset_questions: 预设问题
     users: 用户管理
     badges: 徽章
     flags: 举报管理
@@ -1995,6 +2001,20 @@ ui:
       pending: 等待处理
       filter:
         placeholder: "按标题过滤，问题:id"
+      preset_questions:
+        page_title: 预设问题
+        question_label: 问题
+        type_label: 类型
+        required_label: 必填
+        options_label: 选项
+        options_hint: 每行一个选项
+        type_select: 单选
+        type_multi: 多选
+        type_text: 填空
+        add: 添加
+        save: 保存
+        remove: 删除
+        validation_error: 请完善必填内容。
     answers:
       page_title: 回答
       post: 标题

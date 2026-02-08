@@ -86,6 +86,7 @@ const QaSettings = () => {
   const [formData, setFormData] = useState<Type.FormDataType>(
     initFormData(schema),
   );
+  const [askChecks, setAskChecks] = useState<Type.AskCheckConfig[]>([]);
 
   const handleValueChange = (data: Type.FormDataType) => {
     setFormData(data);
@@ -99,6 +100,7 @@ const QaSettings = () => {
       min_tags: formData.min_tags.value,
       min_content: formData.min_content.value,
       restrict_answer: formData.restrict_answer.value,
+      ask_checks: askChecks,
     };
     updateQuestionSetting(reqParams)
       .then(() => {
@@ -125,7 +127,7 @@ const QaSettings = () => {
         formMeta.min_tags.value = res.min_tags;
         formMeta.min_content.value = res.min_content;
         formMeta.restrict_answer.value = res.restrict_answer;
-        console.log('res', res, formMeta);
+        setAskChecks(res.ask_checks || []);
         setFormData(formMeta);
       }
     });

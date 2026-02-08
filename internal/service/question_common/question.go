@@ -261,6 +261,21 @@ func (qs *QuestionCommon) Info(ctx context.Context, questionID string, loginUser
 		return resp, errors.NotFound(reason.QuestionNotFound)
 	}
 	resp = qs.ShowFormat(ctx, questionInfo)
+	metaInfo, err := qs.metaCommonService.GetMetaByObjectIdAndKey(ctx, questionInfo.ID, entity.QuestionAskCheckMetaKey)
+	if err == nil {
+		meta := &schema.QuestionAskCheckMeta{}
+		if json.Unmarshal([]byte(metaInfo.Value), meta) == nil {
+			if meta.SearchedRelated != nil {
+				resp.SearchedRelated = meta.SearchedRelated
+			}
+			if meta.ClassGroupUnresolved != nil {
+				resp.ClassGroupUnresolved = meta.ClassGroupUnresolved
+			}
+			if len(meta.AskChecks) > 0 {
+				resp.AskChecks = meta.AskChecks
+			}
+		}
+	}
 	if resp.Status == entity.QuestionStatusClosed {
 		metaInfo, err := qs.metaCommonService.GetMetaByObjectIdAndKey(ctx, questionInfo.ID, entity.QuestionCloseReasonKey)
 		if err != nil {

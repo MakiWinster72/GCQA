@@ -10957,6 +10957,12 @@
                 "title"
             ],
             "properties": {
+                "ask_checks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/schema.QuestionAskCheckAnswer"
+                    }
+                },
                 "captcha_code": {
                     "type": "string"
                 },
@@ -10964,11 +10970,17 @@
                     "description": "captcha_id",
                     "type": "string"
                 },
+                "class_group_unresolved": {
+                    "type": "boolean"
+                },
                 "content": {
                     "description": "content",
                     "type": "string",
                     "maxLength": 65535,
                     "minLength": 0
+                },
+                "searched_related": {
+                    "type": "boolean"
                 },
                 "tags": {
                     "description": "tags",
@@ -10997,12 +11009,21 @@
                     "maxLength": 65535,
                     "minLength": 6
                 },
+                "ask_checks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/schema.QuestionAskCheckAnswer"
+                    }
+                },
                 "captcha_code": {
                     "type": "string"
                 },
                 "captcha_id": {
                     "description": "captcha_id",
                     "type": "string"
+                },
+                "class_group_unresolved": {
+                    "type": "boolean"
                 },
                 "content": {
                     "description": "content",
@@ -11015,6 +11036,9 @@
                     "items": {
                         "type": "string"
                     }
+                },
+                "searched_related": {
+                    "type": "boolean"
                 },
                 "tags": {
                     "description": "tags",
@@ -11031,6 +11055,23 @@
                 }
             }
         },
+        "schema.QuestionAskCheckAnswer": {
+            "type": "object",
+            "properties": {
+                "answer": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
         "schema.QuestionInfoResp": {
             "type": "object",
             "properties": {
@@ -11041,6 +11082,15 @@
                     "type": "integer"
                 },
                 "answered": {
+                    "type": "boolean"
+                },
+                "ask_checks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/schema.QuestionAskCheckAnswer"
+                    }
+                },
+                "class_group_unresolved": {
                     "type": "boolean"
                 },
                 "collected": {
@@ -11100,6 +11150,9 @@
                 },
                 "pin": {
                     "type": "integer"
+                },
+                "searched_related": {
+                    "type": "boolean"
                 },
                 "show": {
                     "type": "integer"
@@ -12148,9 +12201,38 @@
                 }
             }
         },
+        "schema.SiteQuestionAskItem": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "options": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "required": {
+                    "type": "boolean"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
         "schema.SiteQuestionsReq": {
             "type": "object",
             "properties": {
+                "ask_checks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/schema.SiteQuestionAskItem"
+                    }
+                },
                 "min_content": {
                     "type": "integer",
                     "maximum": 65535,
@@ -12169,6 +12251,12 @@
         "schema.SiteQuestionsResp": {
             "type": "object",
             "properties": {
+                "ask_checks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/schema.SiteQuestionAskItem"
+                    }
+                },
                 "min_content": {
                     "type": "integer",
                     "maximum": 65535,
