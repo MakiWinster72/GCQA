@@ -23,6 +23,8 @@ package schema
 type UserExternalLoginResp struct {
 	BindingKey  string `json:"binding_key"`
 	AccessToken string `json:"access_token"`
+	// NeedChangeEmail indicates the user should be redirected to change email after login.
+	NeedChangeEmail bool `json:"need_change_email"`
 	// ErrMsg error message, if not empty, means login failed and this message should be displayed.
 	ErrMsg   string `json:"-"`
 	ErrTitle string `json:"-"`

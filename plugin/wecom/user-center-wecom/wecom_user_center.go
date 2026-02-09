@@ -163,6 +163,7 @@ func (uc *UserCenter) LoginCallback(ctx *plugin.GinContext) (userInfo *plugin.Us
 	userInfo.Username = info.Userid
 	userInfo.DisplayName = info.Name
 	userInfo.Email = info.GetEmail()
+	userInfo.Bio = uc.Company.formatDepartmentAndPosition(info.DepartmentIDs, info.Position)
 	userInfo.Rank = 0
 	userInfo.Avatar = info.Avatar
 	userInfo.Mobile = info.Mobile
@@ -190,7 +191,6 @@ func (uc *UserCenter) UserInfo(externalID string) (userInfo *plugin.UserCenterBa
 	}
 	userInfo = &plugin.UserCenterBasicUserInfo{
 		ExternalID:  externalID,
-		Username:    userDetailInfo.Userid,
 		DisplayName: userDetailInfo.Name,
 		Bio:         uc.Company.formatDepartmentAndPosition(userDetailInfo.Department, userDetailInfo.Position),
 	}

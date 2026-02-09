@@ -161,6 +161,12 @@ func (uc *UserCenterController) UserCenterLoginCallback(ctx *gin.Context) {
 		ctx.Redirect(http.StatusFound, fmt.Sprintf("/50x?title=%s&msg=%s", resp.ErrTitle, resp.ErrMsg))
 		return
 	}
+	if resp.NeedChangeEmail {
+		userCenter.AfterLogin(userInfo.ExternalID, resp.AccessToken)
+		ctx.Redirect(http.StatusFound, fmt.Sprintf("%s/users/auth-landing?access_token=%s&redirect=/users/change-email",
+			siteGeneral.SiteUrl, resp.AccessToken))
+		return
+	}
 	userCenter.AfterLogin(userInfo.ExternalID, resp.AccessToken)
 	ctx.Redirect(http.StatusFound, fmt.Sprintf("%s/users/auth-landing?access_token=%s",
 		siteGeneral.SiteUrl, resp.AccessToken))
@@ -194,6 +200,12 @@ func (uc *UserCenterController) UserCenterSignUpCallback(ctx *gin.Context) {
 	}
 	if len(resp.ErrMsg) > 0 {
 		ctx.Redirect(http.StatusFound, fmt.Sprintf("/50x?title=%s&msg=%s", resp.ErrTitle, resp.ErrMsg))
+		return
+	}
+	if resp.NeedChangeEmail {
+		userCenter.AfterLogin(userInfo.ExternalID, resp.AccessToken)
+		ctx.Redirect(http.StatusFound, fmt.Sprintf("%s/users/auth-landing?access_token=%s&redirect=/users/change-email",
+			siteGeneral.SiteUrl, resp.AccessToken))
 		return
 	}
 	userCenter.AfterLogin(userInfo.ExternalID, resp.AccessToken)

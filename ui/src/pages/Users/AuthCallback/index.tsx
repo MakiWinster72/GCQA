@@ -22,7 +22,9 @@ import { useTranslation } from 'react-i18next';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 
 import { usePageTags } from '@/hooks';
+import { REDIRECT_PATH_STORAGE_KEY } from '@/common/constants';
 import { guard } from '@/utils';
+import Storage from '@/utils/storage';
 
 const Index: FC = () => {
   const { t } = useTranslation('translation', { keyPrefix: 'page_title' });
@@ -30,6 +32,10 @@ const Index: FC = () => {
   const navigate = useNavigate();
   useEffect(() => {
     const token = searchParams.get('access_token');
+    const redirect = searchParams.get('redirect');
+    if (redirect) {
+      Storage.set(REDIRECT_PATH_STORAGE_KEY, redirect);
+    }
     guard.handleLoginWithToken(token, navigate);
   }, []);
   usePageTags({

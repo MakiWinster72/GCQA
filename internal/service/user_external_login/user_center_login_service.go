@@ -78,6 +78,8 @@ func (us *UserCenterLoginService) ExternalLogin(
 		}, nil
 	}
 
+	needChangeEmail := len(basicUserInfo.Email) == 0
+
 	if len(basicUserInfo.Email) > 0 {
 		// check whether site allow register or not
 		siteInfo, err := us.siteInfoCommonService.GetSiteLogin(ctx)
@@ -112,12 +114,20 @@ func (us *UserCenterLoginService) ExternalLogin(
 					ErrMsg:   translator.Tr(handler.GetLangByCtx(ctx), reason.UserPageAccessDenied),
 				}, nil
 			}
+			if len(basicUserInfo.Email) == 0 && len(oldUserInfo.EMail) > 0 &&
+				!isPlaceholderEmail(oldUserInfo.EMail) {
+				basicUserInfo.Email = oldUserInfo.EMail
+				needChangeEmail = false
+			} else if len(basicUserInfo.Email) == 0 && len(oldUserInfo.EMail) > 0 &&
+				isPlaceholderEmail(oldUserInfo.EMail) {
+				needChangeEmail = true
+			}
 			if err := us.userRepo.UpdateLastLoginDate(ctx, oldUserInfo.ID); err != nil {
 				log.Errorf("update user last login date failed: %v", err)
 			}
 			accessToken, _, err := us.userCommonService.CacheLoginUserInfo(
 				ctx, oldUserInfo.ID, oldUserInfo.MailStatus, oldUserInfo.Status, oldExternalLoginUserInfo.ExternalID)
-			return &schema.UserExternalLoginResp{AccessToken: accessToken}, err
+			return &schema.UserExternalLoginResp{AccessToken: accessToken, NeedChangeEmail: needChangeEmail}, err
 		}
 	}
 
@@ -137,18 +147,14 @@ func (us *UserCenterLoginService) ExternalLogin(
 
 	accessToken, _, err := us.userCommonService.CacheLoginUserInfo(
 		ctx, oldUserInfo.ID, oldUserInfo.MailStatus, oldUserInfo.Status, oldExternalLoginUserInfo.ExternalID)
-	return &schema.UserExternalLoginResp{AccessToken: accessToken}, err
+	return &schema.UserExternalLoginResp{AccessToken: accessToken, NeedChangeEmail: needChangeEmail}, err
 }
 
 func (us *UserCenterLoginService) registerNewUser(ctx context.Context, provider string,
 	basicUserInfo *plugin.UserCenterBasicUserInfo) (userInfo *entity.User, err error) {
 	userInfo = &entity.User{}
-	needUpdateEmail := false
-	isFakeEmail := false
 	if len(basicUserInfo.Email) == 0 {
-		userInfo.EMail = makeFakeEmail(basicUserInfo.ExternalID)
-		needUpdateEmail = true
-		isFakeEmail = true
+		userInfo.EMail = makePlaceholderEmail(basicUserInfo.ExternalID)
 	} else {
 		userInfo.EMail = basicUserInfo.Email
 	}
@@ -169,11 +175,7 @@ func (us *UserCenterLoginService) registerNewUser(ctx context.Context, provider 
 		userInfo.Avatar = string(avatar)
 	}
 
-	if isFakeEmail {
-		userInfo.MailStatus = entity.EmailStatusToBeVerified
-	} else {
-		userInfo.MailStatus = entity.EmailStatusAvailable
-	}
+	userInfo.MailStatus = entity.EmailStatusAvailable
 	userInfo.Status = entity.UserStatusAvailable
 	userInfo.LastLoginDate = time.Now()
 	userInfo.Bio = basicUserInfo.Bio
@@ -181,12 +183,6 @@ func (us *UserCenterLoginService) registerNewUser(ctx context.Context, provider 
 	err = us.userRepo.AddUser(ctx, userInfo)
 	if err != nil {
 		return nil, err
-	}
-	if needUpdateEmail {
-		userInfo.EMail = fmt.Sprintf("%s@fakeEmail.com", userInfo.ID)
-		if err = us.userRepo.UpdateEmail(ctx, userInfo.ID, userInfo.EMail); err != nil {
-			return nil, err
-		}
 	}
 
 	metaInfo, _ := json.Marshal(basicUserInfo)
@@ -281,12 +277,12 @@ func (us *UserCenterLoginService) UserCenterAdminFunctionAgent(ctx context.Conte
 	return resp, nil
 }
 
-func makeFakeEmail(externalID string) string {
+func makePlaceholderEmail(externalID string) string {
 	local := sanitizeEmailLocalPart(externalID)
 	if local == "" {
 		local = random.Username()
 	}
-	return fmt.Sprintf("%s@fakeEmail.com", local)
+	return fmt.Sprintf("%s@wecom.local", local)
 }
 
 func sanitizeEmailLocalPart(input string) string {
@@ -304,6 +300,11 @@ func sanitizeEmailLocalPart(input string) string {
 		out = out[:200]
 	}
 	return out
+}
+
+func isPlaceholderEmail(email string) bool {
+	e := strings.ToLower(strings.TrimSpace(email))
+	return strings.HasSuffix(e, "@wecom.local") || strings.HasSuffix(e, "@fakeemail.com")
 }
 
 func (us *UserCenterLoginService) UserCenterPersonalBranding(ctx context.Context, username string) (

@@ -181,12 +181,23 @@ func (c *Company) AuthUser(code string) (info *UserInfo, err error) {
 	if err != nil {
 		return nil, err
 	}
+	email := userInfoResp.Email
+	if len(email) == 0 && len(userInfoResp.BizEmail) > 0 {
+		email = userInfoResp.BizEmail
+	}
+	if len(email) == 0 {
+		if len(userDetailInfo.BizEmail) > 0 {
+			email = userDetailInfo.BizEmail
+		} else if len(userDetailInfo.Email) > 0 {
+			email = userDetailInfo.Email
+		}
+	}
 
 	userInfo := &UserInfo{
 		Userid:        userInfoResp.Userid,
 		Mobile:        userInfoResp.Mobile,
 		Gender:        userInfoResp.Gender,
-		Email:         userInfoResp.Email,
+		Email:         email,
 		Avatar:        userInfoResp.Avatar,
 		QrCode:        userInfoResp.QrCode,
 		Address:       userInfoResp.Address,

@@ -630,8 +630,36 @@ func (us *UserService) UserChangeEmailSendCode(ctx context.Context, req *schema.
 		return nil, errors.BadRequest(reason.UserNotFound)
 	}
 
+	if isPlaceholderEmail(userInfo.EMail) {
+		if len(userInfo.Pass) > 0 && !us.verifyPassword(ctx, req.Pass, userInfo.Pass) {
+			resp = append(resp, &validator.FormErrorField{
+				ErrorField: "pass",
+				ErrorMsg:   translator.Tr(handler.GetLangByCtx(ctx), reason.OldPasswordVerificationFailed),
+			})
+			return resp, errors.BadRequest(reason.OldPasswordVerificationFailed)
+		}
+		_, exist, err = us.userRepo.GetByEmail(ctx, req.Email)
+		if err != nil {
+			return nil, err
+		}
+		if exist {
+			resp = append([]*validator.FormErrorField{}, &validator.FormErrorField{
+				ErrorField: "e_mail",
+				ErrorMsg:   translator.Tr(handler.GetLangByCtx(ctx), reason.EmailDuplicate),
+			})
+			return resp, errors.BadRequest(reason.EmailDuplicate)
+		}
+		if err = us.userRepo.UpdateEmail(ctx, req.UserID, req.Email); err != nil {
+			return nil, err
+		}
+		if err = us.userRepo.UpdateEmailStatus(ctx, req.UserID, entity.EmailStatusAvailable); err != nil {
+			return nil, err
+		}
+		return nil, nil
+	}
+
 	// If user's email already verified, then must verify password first.
-	if userInfo.MailStatus == entity.EmailStatusAvailable && !strings.HasSuffix(strings.ToLower(userInfo.EMail), "@fakeemail.com") &&
+	if userInfo.MailStatus == entity.EmailStatusAvailable && len(userInfo.Pass) > 0 &&
 		!us.verifyPassword(ctx, req.Pass, userInfo.Pass) {
 		resp = append(resp, &validator.FormErrorField{
 			ErrorField: "pass",
@@ -671,6 +699,11 @@ func (us *UserService) UserChangeEmailSendCode(ctx context.Context, req *schema.
 
 	go us.emailService.SendAndSaveCode(ctx, userInfo.ID, req.Email, title, body, code, data.ToJSONString())
 	return nil, nil
+}
+
+func isPlaceholderEmail(email string) bool {
+	e := strings.ToLower(strings.TrimSpace(email))
+	return strings.HasSuffix(e, "@wecom.local") || strings.HasSuffix(e, "@fakeemail.com")
 }
 
 // UserChangeEmailVerify user change email verify code

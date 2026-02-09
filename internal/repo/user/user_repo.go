@@ -354,8 +354,8 @@ func decorateByUserCenterUser(original *entity.User, ucUser *plugin.UserCenterBa
 		return
 	}
 	// In general, usernames should be guaranteed unique by the User Center plugin, so there are no inconsistencies.
-	if original.Username != ucUser.Username {
-		log.Warnf("user %s username is inconsistent with user center", original.ID)
+	if len(ucUser.Username) > 0 && original.Username != ucUser.Username {
+		log.Debugf("user %s username is inconsistent with user center", original.ID)
 	}
 	if len(ucUser.DisplayName) > 0 {
 		original.DisplayName = ucUser.DisplayName
