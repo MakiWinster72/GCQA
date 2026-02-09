@@ -22,6 +22,8 @@ package user_external_login
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/apache/answer/internal/base/constant"
@@ -141,7 +143,15 @@ func (us *UserCenterLoginService) ExternalLogin(
 func (us *UserCenterLoginService) registerNewUser(ctx context.Context, provider string,
 	basicUserInfo *plugin.UserCenterBasicUserInfo) (userInfo *entity.User, err error) {
 	userInfo = &entity.User{}
-	userInfo.EMail = basicUserInfo.Email
+	needUpdateEmail := false
+	isFakeEmail := false
+	if len(basicUserInfo.Email) == 0 {
+		userInfo.EMail = makeFakeEmail(basicUserInfo.ExternalID)
+		needUpdateEmail = true
+		isFakeEmail = true
+	} else {
+		userInfo.EMail = basicUserInfo.Email
+	}
 	userInfo.DisplayName = basicUserInfo.DisplayName
 
 	userInfo.Username, err = us.userCommonService.MakeUsername(ctx, basicUserInfo.Username)
@@ -159,7 +169,11 @@ func (us *UserCenterLoginService) registerNewUser(ctx context.Context, provider 
 		userInfo.Avatar = string(avatar)
 	}
 
-	userInfo.MailStatus = entity.EmailStatusAvailable
+	if isFakeEmail {
+		userInfo.MailStatus = entity.EmailStatusToBeVerified
+	} else {
+		userInfo.MailStatus = entity.EmailStatusAvailable
+	}
 	userInfo.Status = entity.UserStatusAvailable
 	userInfo.LastLoginDate = time.Now()
 	userInfo.Bio = basicUserInfo.Bio
@@ -167,6 +181,12 @@ func (us *UserCenterLoginService) registerNewUser(ctx context.Context, provider 
 	err = us.userRepo.AddUser(ctx, userInfo)
 	if err != nil {
 		return nil, err
+	}
+	if needUpdateEmail {
+		userInfo.EMail = fmt.Sprintf("%s@fakeEmail.com", userInfo.ID)
+		if err = us.userRepo.UpdateEmail(ctx, userInfo.ID, userInfo.EMail); err != nil {
+			return nil, err
+		}
 	}
 
 	metaInfo, _ := json.Marshal(basicUserInfo)
@@ -259,6 +279,31 @@ func (us *UserCenterLoginService) UserCenterAdminFunctionAgent(ctx context.Conte
 	resp.AllowUpdateUserPassword = desc.EnabledOriginalUserSystem
 	resp.AllowCreateUser = desc.EnabledOriginalUserSystem
 	return resp, nil
+}
+
+func makeFakeEmail(externalID string) string {
+	local := sanitizeEmailLocalPart(externalID)
+	if local == "" {
+		local = random.Username()
+	}
+	return fmt.Sprintf("%s@fakeEmail.com", local)
+}
+
+func sanitizeEmailLocalPart(input string) string {
+	var b strings.Builder
+	for _, r := range input {
+		if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') ||
+			r == '.' || r == '_' || r == '%' || r == '+' || r == '-' {
+			b.WriteRune(r)
+		} else {
+			b.WriteByte('_')
+		}
+	}
+	out := strings.Trim(b.String(), "._%+-")
+	if len(out) > 200 {
+		out = out[:200]
+	}
+	return out
 }
 
 func (us *UserCenterLoginService) UserCenterPersonalBranding(ctx context.Context, username string) (

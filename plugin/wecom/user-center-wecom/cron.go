@@ -17,22 +17,23 @@
  * under the License.
  */
 
-//go:generate go run github.com/swaggo/swag/cmd/swag init -g ./cmd/answer/main.go -d ../../ -o ../../docs
-
-package main
+package wecom
 
 import (
-	answercmd "github.com/apache/answer/cmd"
-	_ "github.com/apache/answer-plugins/user-center-wecom"
+	"time"
+
+	"github.com/segmentfault/pacman/log"
 )
 
-// main godoc
-// @title Apache Answer
-// @description Apache Answer API
-// @BasePath /
-// @securityDefinitions.apikey ApiKeyAuth
-// @in header
-// @name Authorization
-func main() {
-	answercmd.Main()
+func (uc *UserCenter) CronSyncData() {
+	go func() {
+		ticker := time.NewTicker(time.Hour)
+		for {
+			select {
+			case <-ticker.C:
+				log.Infof("user center try to sync data")
+				uc.syncCompany()
+			}
+		}
+	}()
 }

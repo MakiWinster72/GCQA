@@ -23,6 +23,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/apache/answer/internal/service/eventqueue"
@@ -276,6 +277,9 @@ func (us *UserService) UserModifyPassWordVerification(ctx context.Context, req *
 	if !has {
 		return false, errors.BadRequest(reason.UserNotFound)
 	}
+	if len(userInfo.Pass) == 0 {
+		return true, nil
+	}
 	isPass := us.verifyPassword(ctx, req.OldPass, userInfo.Pass)
 	if !isPass {
 		return false, nil
@@ -298,9 +302,11 @@ func (us *UserService) UserModifyPassword(ctx context.Context, req *schema.UserM
 		return errors.BadRequest(reason.UserNotFound)
 	}
 
-	isPass := us.verifyPassword(ctx, req.OldPass, userInfo.Pass)
-	if !isPass {
-		return errors.BadRequest(reason.OldPasswordVerificationFailed)
+	if len(userInfo.Pass) > 0 {
+		isPass := us.verifyPassword(ctx, req.OldPass, userInfo.Pass)
+		if !isPass {
+			return errors.BadRequest(reason.OldPasswordVerificationFailed)
+		}
 	}
 	err = us.userRepo.UpdatePass(ctx, userInfo.ID, enpass)
 	if err != nil {
@@ -625,7 +631,8 @@ func (us *UserService) UserChangeEmailSendCode(ctx context.Context, req *schema.
 	}
 
 	// If user's email already verified, then must verify password first.
-	if userInfo.MailStatus == entity.EmailStatusAvailable && !us.verifyPassword(ctx, req.Pass, userInfo.Pass) {
+	if userInfo.MailStatus == entity.EmailStatusAvailable && !strings.HasSuffix(strings.ToLower(userInfo.EMail), "@fakeemail.com") &&
+		!us.verifyPassword(ctx, req.Pass, userInfo.Pass) {
 		resp = append(resp, &validator.FormErrorField{
 			ErrorField: "pass",
 			ErrorMsg:   translator.Tr(handler.GetLangByCtx(ctx), reason.OldPasswordVerificationFailed),
