@@ -2383,6 +2383,9 @@ ui:
       model:
         label: Model
         msg: Model is required
+      prompt:
+        label: Prompt
+        text: Shows the prompt for the current language. Edit and save to apply.
       add_success: AI settings updated successfully.
     conversations:
       topic: Topic
@@ -2596,22 +2599,22 @@ plugin:
             other: Get notified of new questions for following tags.
       tpl:
         update_question:
-          other: "<a href=\"{{.TriggerUserUrl}}\">{{.TriggerUserDisplayName}}</a> updated question <a href=\"{{.QuestionUrl}}\">{{.QuestionTitle}}</a>"
+          other: '<a href="{{.TriggerUserUrl}}">{{.TriggerUserDisplayName}}</a> updated question <a href="{{.QuestionUrl}}">{{.QuestionTitle}}</a>'
         answer_the_question:
-          other: "<a href=\"{{.TriggerUserUrl}}\">{{.TriggerUserDisplayName}}</a> answered the question <a href=\"{{.AnswerUrl}}\">{{.QuestionTitle}}</a>"
+          other: '<a href="{{.TriggerUserUrl}}">{{.TriggerUserDisplayName}}</a> answered the question <a href="{{.AnswerUrl}}">{{.QuestionTitle}}</a>'
         update_answer:
-          other: "<a href=\"{{.TriggerUserUrl}}\">{{.TriggerUserDisplayName}}</a> updated answer <a href=\"{{.AnswerUrl}}\">{{.QuestionTitle}}</a>"
+          other: '<a href="{{.TriggerUserUrl}}">{{.TriggerUserDisplayName}}</a> updated answer <a href="{{.AnswerUrl}}">{{.QuestionTitle}}</a>'
         accept_answer:
-          other: "<a href=\"{{.TriggerUserUrl}}\">{{.TriggerUserDisplayName}}</a> accepted answer <a href=\"{{.AnswerUrl}}\">{{.QuestionTitle}}</a>"
+          other: '<a href="{{.TriggerUserUrl}}">{{.TriggerUserDisplayName}}</a> accepted answer <a href="{{.AnswerUrl}}">{{.QuestionTitle}}</a>'
         comment_question:
-          other: "<a href=\"{{.TriggerUserUrl}}\">{{.TriggerUserDisplayName}}</a> commented question <a href=\"{{.CommentUrl}}\">{{.QuestionTitle}}</a>"
+          other: '<a href="{{.TriggerUserUrl}}">{{.TriggerUserDisplayName}}</a> commented question <a href="{{.CommentUrl}}">{{.QuestionTitle}}</a>'
         comment_answer:
-          other: "<a href=\"{{.TriggerUserUrl}}\">{{.TriggerUserDisplayName}}</a> commented answer <a href=\"{{.CommentUrl}}\">{{.QuestionTitle}}</a>"
+          other: '<a href="{{.TriggerUserUrl}}">{{.TriggerUserDisplayName}}</a> commented answer <a href="{{.CommentUrl}}">{{.QuestionTitle}}</a>'
         reply_to_you:
-          other: "<a href=\"{{.TriggerUserUrl}}\">{{.TriggerUserDisplayName}}</a> replied you <a href=\"{{.CommentUrl}}\">{{.QuestionTitle}}</a>"
+          other: '<a href="{{.TriggerUserUrl}}">{{.TriggerUserDisplayName}}</a> replied you <a href="{{.CommentUrl}}">{{.QuestionTitle}}</a>'
         mention_you:
-          other: "<a href=\"{{.TriggerUserUrl}}\">{{.TriggerUserDisplayName}}</a> mentioned you <a href=\"{{.CommentUrl}}\">{{.QuestionTitle}}</a>"
+          other: '<a href="{{.TriggerUserUrl}}">{{.TriggerUserDisplayName}}</a> mentioned you <a href="{{.CommentUrl}}">{{.QuestionTitle}}</a>'
         invited_you_to_answer:
-          other: "<a href=\"{{.TriggerUserUrl}}\">{{.TriggerUserDisplayName}}</a> invited you to answer <a href=\"{{.QuestionUrl}}\">{{.QuestionTitle}}</a>"
+          other: '<a href="{{.TriggerUserUrl}}">{{.TriggerUserDisplayName}}</a> invited you to answer <a href="{{.QuestionUrl}}">{{.QuestionTitle}}</a>'
         new_question:
           other: "New question:\n<a href=\"{{.QuestionUrl}}\">{{.QuestionTitle}}</a>\n{{.QuestionTags}}"
