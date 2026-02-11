@@ -89,8 +89,6 @@ const Index = () => {
   const [modelsData, setModels] = useState<{ id: string }[]>([]);
   const [isChecking, setIsChecking] = useState(false);
 
-  const isZhLang = i18n.language?.toLowerCase().startsWith('zh');
-
   const getCurrentProviderData = (provider) => {
     const findHistoryProvider =
       historyConfigRef.current?.ai_providers.find(
