@@ -20,6 +20,8 @@
 package schema
 
 import (
+	"encoding/json"
+	"strconv"
 	"strings"
 
 	"github.com/apache/answer/pkg/converter"
@@ -159,11 +161,20 @@ func NewMCPSearchUserCond(request mcp.CallToolRequest) *MCPSearchUserCond {
 }
 
 func getRequestValue(request mcp.CallToolRequest, key string) (string, bool) {
-	value, ok := request.GetArguments()[key].(string)
+	value, ok := request.GetArguments()[key]
 	if !ok {
 		return "", false
 	}
-	return value, true
+	switch v := value.(type) {
+	case string:
+		return v, true
+	case json.Number:
+		return v.String(), true
+	case float64:
+		return strconv.FormatFloat(v, 'f', 0, 64), true
+	default:
+		return "", false
+	}
 }
 
 func getRequestNumber(request mcp.CallToolRequest, key string) (int, bool) {

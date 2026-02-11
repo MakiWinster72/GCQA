@@ -163,27 +163,18 @@ func (c *MCPController) MCPAnswersHandler() func(ctx context.Context, request mc
 			return nil, err
 		}
 
-		if len(cond.QuestionID) > 0 {
-			answerList, err := c.answerRepo.GetAnswerList(ctx, &entity.Answer{QuestionID: cond.QuestionID})
-			if err != nil {
-				log.Errorf("get answers failed: %v", err)
-				return nil, err
-			}
-			resp := make([]*schema.MCPSearchAnswerInfoResp, 0)
-			for _, answer := range answerList {
-				t := &schema.MCPSearchAnswerInfoResp{
-					QuestionID:    answer.QuestionID,
-					AnswerID:      answer.ID,
-					AnswerContent: answer.OriginalText,
-					Link:          fmt.Sprintf("%s/questions/%s/answers/%s", siteGeneral.SiteUrl, answer.QuestionID, answer.ID),
-				}
-				resp = append(resp, t)
-			}
-			data, _ := json.Marshal(resp)
-			return mcp.NewToolResultText(string(data)), nil
+		if len(cond.QuestionID) == 0 {
+			return mcp.NewToolResultText("[]"), nil
 		}
-
-		answerList, err := c.answerRepo.GetAnswerList(ctx, &entity.Answer{QuestionID: cond.QuestionID})
+		answerSearch := &entity.AnswerSearch{
+			Answer: entity.Answer{
+				QuestionID: cond.QuestionID,
+			},
+			Page:           1,
+			PageSize:       100,
+			IncludeDeleted: false,
+		}
+		answerList, _, err := c.answerRepo.SearchList(ctx, answerSearch)
 		if err != nil {
 			log.Errorf("get answers failed: %v", err)
 			return nil, err

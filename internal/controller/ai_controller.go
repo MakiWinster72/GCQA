@@ -611,14 +611,16 @@ func (c *AIController) executeToolCalls(ctx *gin.Context, _ http.ResponseWriter,
 	}
 	messages = append(messages, assistantMsg)
 
-	for _, toolCall := range validToolCalls {
-		if toolCall.Function.Name != "" {
-			var args map[string]any
-			if err := json.Unmarshal([]byte(toolCall.Function.Arguments), &args); err != nil {
-				log.Errorf("Failed to parse tool arguments for %s: %v, arguments: %s", toolCall.Function.Name, err, toolCall.Function.Arguments)
-				errorResult := fmt.Sprintf("Error parsing tool arguments: %v", err)
-				toolMessage := openai.ChatCompletionMessage{
-					Role:       openai.ChatMessageRoleTool,
+		for _, toolCall := range validToolCalls {
+			if toolCall.Function.Name != "" {
+				var args map[string]any
+				decoder := json.NewDecoder(strings.NewReader(toolCall.Function.Arguments))
+				decoder.UseNumber()
+				if err := decoder.Decode(&args); err != nil {
+					log.Errorf("Failed to parse tool arguments for %s: %v, arguments: %s", toolCall.Function.Name, err, toolCall.Function.Arguments)
+					errorResult := fmt.Sprintf("Error parsing tool arguments: %v", err)
+					toolMessage := openai.ChatCompletionMessage{
+						Role:       openai.ChatMessageRoleTool,
 					Content:    errorResult,
 					ToolCallID: toolCall.ID,
 				}
