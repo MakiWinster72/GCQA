@@ -17,7 +17,13 @@
  * under the License.
  */
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from 'react';
 import { Row, Col, Form, Button, Card } from 'react-bootstrap';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -131,12 +137,16 @@ const Ask = () => {
   };
   const writeInfo = writeSettingStore((state) => state.write);
   const askChecks = writeInfo.ask_checks || [];
+  const enabledAskChecks = useMemo(
+    () => askChecks.filter((item) => item.enabled !== false),
+    [askChecks],
+  );
 
   useEffect(() => {
     setAskCheckErrors({});
     setAskCheckAnswers((prev) => {
       const next: Record<string, string | string[]> = {};
-      askChecks.forEach((item) => {
+      enabledAskChecks.forEach((item) => {
         const value = prev[item.id];
         if (value) {
           if (item.type === 'multi') {
@@ -155,7 +165,7 @@ const Ask = () => {
       });
       return next;
     });
-  }, [askChecks]);
+  }, [enabledAskChecks]);
 
   const isEdit = qid !== undefined;
 
@@ -443,8 +453,8 @@ const Ask = () => {
     event.preventDefault();
     event.stopPropagation();
 
-    if (!isEdit && askChecks.length > 0) {
-      const missing = askChecks.filter((item) => {
+    if (!isEdit && enabledAskChecks.length > 0) {
+      const missing = enabledAskChecks.filter((item) => {
         if (!item.required) {
           return false;
         }
@@ -468,7 +478,7 @@ const Ask = () => {
       }
     }
 
-    const askCheckPayload = askChecks.map((item) => {
+    const askCheckPayload = enabledAskChecks.map((item) => {
       const value = askCheckAnswers[item.id];
       let answer = '';
       if (Array.isArray(value)) {
@@ -588,12 +598,12 @@ const Ask = () => {
               </Form.Control.Feedback>
               {bool && <SearchQuestion similarQuestions={similarQuestions} />}
             </Form.Group>
-            {!isEdit && askChecks.length > 0 && (
+            {!isEdit && enabledAskChecks.length > 0 && (
               <div className="mb-3">
                 <div className="mb-2 fw-semibold">
                   {t('preset_questions.title')}
                 </div>
-                {askChecks.map((item) => {
+                {enabledAskChecks.map((item) => {
                   const errorMsg = askCheckErrors[item.id];
                   const value = askCheckAnswers[item.id] || '';
                   return (

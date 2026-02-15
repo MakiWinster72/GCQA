@@ -12204,6 +12204,9 @@
         "schema.SiteQuestionAskItem": {
             "type": "object",
             "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
                 "id": {
                     "type": "string"
                 },

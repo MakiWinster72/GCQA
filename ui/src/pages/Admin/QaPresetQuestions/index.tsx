@@ -81,6 +81,7 @@ const QaPresetQuestions = () => {
         title: '',
         type: 'select',
         required: true,
+        enabled: true,
         options: [],
       },
     ]);
@@ -106,6 +107,7 @@ const QaPresetQuestions = () => {
         return {
           ...item,
           title,
+          enabled: item.enabled !== false,
           options,
         } as Type.AskCheckConfig;
       })
@@ -151,7 +153,12 @@ const QaPresetQuestions = () => {
         return;
       }
       setSetting(res);
-      setItems(res.ask_checks || []);
+      setItems(
+        (res.ask_checks || []).map((item) => ({
+          ...item,
+          enabled: item.enabled !== false,
+        })),
+      );
       setOptionsText(
         (res.ask_checks || []).reduce<Record<string, string>>((acc, item) => {
           acc[item.id] = (item.options || []).join('\n');
@@ -173,13 +180,23 @@ const QaPresetQuestions = () => {
                 <div className="fw-semibold">
                   {t('question_label')} #{index + 1}
                 </div>
-                <Button
-                  variant="link"
-                  className="p-0"
-                  type="button"
-                  onClick={() => removeItem(item.id)}>
-                  {t('remove')}
-                </Button>
+                <div className="d-flex align-items-center gap-3">
+                  <Form.Check
+                    type="switch"
+                    checked={item.enabled !== false}
+                    onChange={(e) =>
+                      updateItem(item.id, { enabled: e.target.checked })
+                    }
+                    label={t('enabled_label')}
+                  />
+                  <Button
+                    variant="link"
+                    className="p-0"
+                    type="button"
+                    onClick={() => removeItem(item.id)}>
+                    {t('remove')}
+                  </Button>
+                </div>
               </div>
               <Form.Group
                 className="mb-3"

@@ -902,6 +902,7 @@ export interface AskCheckConfig {
   title: string;
   type: AskCheckType;
   required: boolean;
+  enabled?: boolean;
   options?: string[];
 }
 

@@ -2005,6 +2005,7 @@ ui:
       preset_questions:
         page_title: 预设问题
         question_label: 问题
+        enabled_label: 启用
         type_label: 类型
         required_label: 必填
         options_label: 选项

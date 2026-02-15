@@ -2044,6 +2044,7 @@ ui:
       preset_questions:
         page_title: Preset Questions
         question_label: Question
+        enabled_label: Enabled
         type_label: Type
         required_label: Required
         options_label: Options

@@ -120,6 +120,7 @@ type SiteQuestionAskItem struct {
 	Title    string   `json:"title"`
 	Type     string   `json:"type"`
 	Required bool     `json:"required"`
+	Enabled  *bool    `json:"enabled,omitempty"`
 	Options  []string `json:"options"`
 }
 
