@@ -22,6 +22,8 @@ import { Button, Form } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
 import type * as Type from '@/common/interface';
+import { ADMIN_QA_NAV_MENUS } from '@/common/constants';
+import { TabNav } from '@/components';
 import { writeSettingStore } from '@/stores';
 import {
   getQuestionSetting,
@@ -162,6 +164,7 @@ const QaPresetQuestions = () => {
   return (
     <>
       <h3 className="mb-4">{t('page_title')}</h3>
+      <TabNav menus={ADMIN_QA_NAV_MENUS} />
       <div className="max-w-748">
         <Form onSubmit={onSubmit}>
           {items.map((item, index) => (

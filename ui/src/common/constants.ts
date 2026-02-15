@@ -99,7 +99,6 @@ export const ADMIN_NAV_MENUS = [
     icon: 'file-earmark-text-fill',
     children: [
       { name: 'questions', path: 'qa/questions', pathPrefix: 'qa/' },
-      { name: 'preset_questions', path: 'qa/preset-questions' },
       { name: 'tags', path: 'tags/settings', pathPrefix: 'tags/' },
     ],
   },
@@ -162,6 +161,10 @@ export const ADMIN_NAV_MENUS = [
 
 export const ADMIN_QA_NAV_MENUS = [
   { name: 'questions', path: '/admin/qa/questions' },
+  {
+    name: 'preset_questions',
+    path: '/admin/qa/questions/preset-questions',
+  },
   { name: 'answers', path: '/admin/qa/answers' },
   { name: 'settings', path: '/admin/qa/settings' },
 ];

@@ -366,7 +366,7 @@ const routes: RouteNode[] = [
             page: 'pages/Admin/Answers',
           },
           {
-            path: 'qa/preset-questions',
+            path: 'qa/questions/preset-questions',
             page: 'pages/Admin/QaPresetQuestions',
           },
           {
