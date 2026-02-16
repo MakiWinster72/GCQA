@@ -1,0 +1,41 @@
+.VPHero .image-container {
+  width: min(85vw, 360px);
+  height: min(85vw, 360px);
+}
+
+@media (min-width: 640px) {
+  .VPHero .image-container {
+    width: min(70vw, 480px);
+    height: min(70vw, 480px);
+  }
+}
+
+@media (min-width: 960px) {
+  .VPHero .image-container {
+    width: 560px;
+    height: 560px;
+  }
+}
+
+.VPHero .image-bg {
+  opacity: 0;
+}
+
+.VPHero .image-src {
+  max-width: min(75vw, 320px);
+  max-height: min(75vw, 320px);
+}
+
+@media (min-width: 640px) {
+  .VPHero .image-src {
+    max-width: min(70vw, 600px);
+    max-height: min(60vw, 440px);
+  }
+}
+
+@media (min-width: 960px) {
+  .VPHero .image-src {
+    max-width: 680px;
+    max-height: 520px;
+  }
+}
