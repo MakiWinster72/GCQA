@@ -31,6 +31,10 @@ vendor/
 build/tools/
 dist/
 
+# introwebsite
+/docs/IntroWebsite_vitepress/node_modules/
+/docs/IntroWebsite_vitepress/.vitepress/cache/
+
 # Lint setup generated file
 .husky/
 
