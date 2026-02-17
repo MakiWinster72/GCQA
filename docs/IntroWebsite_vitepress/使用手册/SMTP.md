@@ -1,28 +1,28 @@
-## SMTP
+# SMTP
 
-> 这里给出企业微信的方案，参考https://open.work.weixin.qq.com/help2/pc/19886
+> 这里给出企业微信的方案，参考<https://open.work.weixin.qq.com/help2/pc/19886>
 
-### 调整腾讯企业邮箱 SMTP 的服务范围
+## 调整腾讯企业邮箱 SMTP 的服务范围
 
-扫码选择管理员**账号** https://work.weixin.qq.com/
+扫码选择管理员**账号** <https://work.weixin.qq.com/>
 
 ![](https://img.makis-life.cn/imagesNew/16f2dae4e6c605baf79591b71a630322_MD5.png?x-oss-process=style/yasuo)
 
 在里面打开指定成员邮箱的 SMTP 服务范围
 
-### 如何开启 POP/IMAP/SMTP 服务
+## 如何开启 POP/IMAP/SMTP 服务
 
-扫码选择管理员**邮箱** https://work.weixin.qq.com/
+扫码选择管理员**邮箱** <https://work.weixin.qq.com/>
 
 ![](https://img.makis-life.cn/imagesNew/9d1652a09280a95486d6dbf8e2189ed6_MD5.png?x-oss-process=style/yasuo)
 
-### 生产 SMTP 密码
+## 生产 SMTP 密码
 
 ![](https://img.makis-life.cn/imagesNew/633c0ceb195a93c6ed0b65a824eca213_MD5.png?x-oss-process=style/yasuo)
 
 记录该密码
 
-### 为问答平台配置 SMTP
+## 为问答平台配置 SMTP
 
 进入 后台管理>高级选项>SMTP，可参考如下配置
 
