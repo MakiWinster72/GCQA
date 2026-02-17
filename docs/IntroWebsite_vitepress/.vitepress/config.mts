@@ -3,6 +3,7 @@ import { defineConfig } from "vitepress";
 export default defineConfig({
   title: "广财问答平台文档",
   description: "GCQA 使用与部署文档",
+  base: "/projects/gcqa",
   themeConfig: {
     nav: [
       { text: "首页", link: "/" },
@@ -51,6 +52,8 @@ export default defineConfig({
       ],
     },
 
-    socialLinks: [{ icon: "github", link: "https://github.com/MakiWinster72/GCQA" }],
+    socialLinks: [
+      { icon: "github", link: "https://github.com/MakiWinster72/GCQA" },
+    ],
   },
 });
