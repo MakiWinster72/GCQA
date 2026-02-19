@@ -32,19 +32,8 @@ import { handleFormError } from '@/utils';
 import { useToast } from '@/hooks';
 import * as Type from '@/common/interface';
 
-const getPromptByLang = (
-  promptConfig: Type.AiConfig['prompt_config'] | undefined,
-  lang: string,
-) => {
-  if (!promptConfig) {
-    return '';
-  }
-  const isZh = lang?.toLowerCase().startsWith('zh');
-  return isZh ? promptConfig.zh_cn || '' : promptConfig.en_us || '';
-};
-
 const Index = () => {
-  const { t, i18n } = useTranslation('translation', {
+  const { t } = useTranslation('translation', {
     keyPrefix: 'admin.ai_settings',
   });
   const toast = useToast();
@@ -75,11 +64,6 @@ const Index = () => {
       errorMsg: '',
     },
     model: {
-      value: '',
-      isInvalid: false,
-      errorMsg: '',
-    },
-    prompt: {
       value: '',
       isInvalid: false,
       errorMsg: '',
@@ -315,11 +299,6 @@ const Index = () => {
         isInvalid: false,
         errorMsg: '',
       },
-      prompt: {
-        value: getPromptByLang(aiConfig.prompt_config, i18n.language),
-        isInvalid: false,
-        errorMsg: '',
-      },
     });
   };
 
@@ -346,23 +325,6 @@ const Index = () => {
       }));
     }
   }, [aiProviders, formData]);
-
-  useEffect(() => {
-    if (!historyConfigRef.current) {
-      return;
-    }
-    setFormData((prev) => ({
-      ...prev,
-      prompt: {
-        value: getPromptByLang(
-          historyConfigRef.current?.prompt_config,
-          i18n.language,
-        ),
-        isInvalid: false,
-        errorMsg: '',
-      },
-    }));
-  }, [i18n.language]);
 
   return (
     <div>
@@ -518,29 +480,6 @@ const Index = () => {
 
             <div className="invalid-feedback">{formData.model.errorMsg}</div>
           </div>
-
-          <Form.Group className="mb-3" controlId="prompt">
-            <Form.Label>{t('prompt.label')}</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={8}
-              isInvalid={formData.prompt.isInvalid}
-              value={formData.prompt.value}
-              onChange={(e) =>
-                handleValueChange({
-                  prompt: {
-                    value: e.target.value,
-                    errorMsg: '',
-                    isInvalid: false,
-                  },
-                })
-              }
-            />
-            <Form.Text className="text-muted">{t('prompt.text')}</Form.Text>
-            <Form.Control.Feedback type="invalid">
-              {formData.prompt.errorMsg}
-            </Form.Control.Feedback>
-          </Form.Group>
 
           <Button type="submit">{t('save', { keyPrefix: 'btns' })}</Button>
         </Form>
