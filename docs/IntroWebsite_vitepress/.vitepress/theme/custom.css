@@ -24,6 +24,7 @@
 .VPHero .image-src {
   max-width: min(75vw, 320px);
   max-height: min(75vw, 320px);
+  box-shadow: none;
 }
 
 @media (min-width: 640px) {
@@ -38,4 +39,26 @@
     max-width: 680px;
     max-height: 520px;
   }
+}
+
+img,
+video {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+}
+
+:root {
+  --gc-nav-glass-bg: rgba(255, 255, 255, 0.72);
+}
+
+.dark {
+  --gc-nav-glass-bg: rgba(27, 27, 31, 0.72);
+}
+
+.VPNavBar.has-sidebar.top,
+.VPLocalNav.has-sidebar,
+.VPNavBar:not(.home.top) .content-body,
+.VPNavBar.has-sidebar .content-body {
+  background-color: var(--gc-nav-glass-bg) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  backdrop-filter: blur(6px) !important;
 }
