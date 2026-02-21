@@ -87,9 +87,12 @@ sudo bash -c "$(curl -sSL https://n3.ink/helper)"
 ```
 
 1. 注册并生成授权码：
-   3. 注册账号：[https://1ms.run](https://1ms.run/)
-   4. 生成授权码：[https://1ms.run/user?menu=10](https://1ms.run/user?menu=10)
-   5. 回到 Linux 输入完成授权
+
+2. 注册账号：[https://1ms.run](https://1ms.run/)
+
+3. 生成授权码：[https://1ms.run/user?menu=10](https://1ms.run/user?menu=10)
+
+4. 回到 Linux 输入完成授权
 
 ## 安装 Apache Anwser
 
@@ -134,4 +137,3 @@ docker compose up -d
 接下来能看到拉取镜像，等待下载后会自动启动。
 
 [初始化 Apache Answer](初始化.md)
-
