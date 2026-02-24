@@ -116,9 +116,12 @@ export const useImageUpload = () => {
     return Promise.all(promises);
   };
 
-  const uploadSingleFile = async (file: File): Promise<string> => {
+  const uploadSingleFile = async (
+    file: File,
+    onUploadProgress?: (progressEvent: ProgressEvent) => void,
+  ): Promise<string> => {
     const type = file.type.indexOf('image') > -1 ? 'post' : 'post_attachment';
-    return uploadImage({ file, type });
+    return uploadImage({ file, type, onUploadProgress });
   };
 
   return {

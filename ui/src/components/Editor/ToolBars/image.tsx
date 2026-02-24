@@ -17,8 +17,8 @@
  * under the License.
  */
 
-import { useEffect, useState, memo, useContext } from 'react';
-import { Button, Form, Modal, Tab, Tabs } from 'react-bootstrap';
+import { useEffect, useRef, useState, memo, useContext } from 'react';
+import { Button, Form, Modal, ProgressBar, Tab, Tabs } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
 import ToolItem from '../toolItem';
@@ -61,6 +61,10 @@ const Image = () => {
     isInvalid: false,
     errorMsg: '',
   });
+  const [uploadPercent, setUploadPercent] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+  const uploadTimerRef = useRef<number | null>(null);
+  const uploadDoneRef = useRef(false);
 
   function dragenter(e) {
     e.stopPropagation();
@@ -270,6 +274,47 @@ const Image = () => {
 
   const { uploadSingleFile } = useImageUpload();
 
+  const startFakeProgress = () => {
+    if (uploadTimerRef.current) {
+      window.clearInterval(uploadTimerRef.current);
+    }
+    uploadDoneRef.current = false;
+    setUploadPercent(0);
+    const startedAt = Date.now();
+    const durationMs = 5000;
+    uploadTimerRef.current = window.setInterval(() => {
+      if (uploadDoneRef.current) {
+        return;
+      }
+      const elapsed = Date.now() - startedAt;
+      const ratio = Math.min(elapsed / durationMs, 1);
+      const next = Math.max(1, Math.min(99, Math.floor(ratio * 99)));
+      setUploadPercent((prev) => (prev >= 99 ? 99 : Math.max(prev, next)));
+      if (elapsed >= durationMs) {
+        window.clearInterval(uploadTimerRef.current || undefined);
+        uploadTimerRef.current = null;
+      }
+    }, 100);
+  };
+
+  const finishProgress = (percent: number) => {
+    uploadDoneRef.current = true;
+    if (uploadTimerRef.current) {
+      window.clearInterval(uploadTimerRef.current);
+      uploadTimerRef.current = null;
+    }
+    setUploadPercent(percent);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (uploadTimerRef.current) {
+        window.clearInterval(uploadTimerRef.current);
+        uploadTimerRef.current = null;
+      }
+    };
+  }, []);
+
   const onUpload = async (e) => {
     if (!editor) {
       return;
@@ -281,17 +326,33 @@ const Image = () => {
       return;
     }
 
-    uploadSingleFile(e.target.files[0]).then((url) => {
-      setLink({ ...link, value: url });
-      setImageName({ ...imageName, value: files[0].name });
-    });
+    setIsUploading(true);
+    startFakeProgress();
+    uploadSingleFile(e.target.files[0])
+      .then((url) => {
+        finishProgress(100);
+        setLink({ ...link, value: url });
+        setImageName({ ...imageName, value: files[0].name });
+      })
+      .catch(() => {
+        finishProgress(0);
+      })
+      .finally(() => {
+        setIsUploading(false);
+      });
   };
 
-  const onHide = () => setVisible(false);
+  const onHide = () => {
+    setVisible(false);
+    finishProgress(0);
+    setIsUploading(false);
+  };
   const onExited = () => editor?.focus();
 
   const handleSelect = (tab) => {
     setCurrentTab(tab);
+    finishProgress(0);
+    setIsUploading(false);
   };
   return (
     <ToolItem {...item} onClick={addLink}>
@@ -316,11 +377,24 @@ const Image = () => {
                     onChange={onUpload}
                     isInvalid={currentTab === 'localImage' && link.isInvalid}
                     accept="image/*"
+                    disabled={isUploading}
                   />
 
                   <Form.Control.Feedback type="invalid">
                     {t('image.form_image.fields.file.msg.empty')}
                   </Form.Control.Feedback>
+                  {currentTab === 'localImage' && uploadPercent > 0 && (
+                    <div className="mt-2 d-flex align-items-center gap-2">
+                      <ProgressBar
+                        now={uploadPercent}
+                        variant="success"
+                        style={{ width: '100%', minWidth: '120px' }}
+                      />
+                      <span className="small text-secondary">
+                        {uploadPercent}%
+                      </span>
+                    </div>
+                  )}
                 </Form.Group>
 
                 <Form.Group controlId="editor.imgDescription" className="mb-3">
@@ -385,7 +459,10 @@ const Image = () => {
           <Button variant="link" onClick={() => setVisible(false)}>
             {t('image.btn_cancel')}
           </Button>
-          <Button variant="primary" onClick={handleClick}>
+          <Button
+            variant="primary"
+            onClick={handleClick}
+            disabled={isUploading}>
             {t('image.btn_confirm')}
           </Button>
         </Modal.Footer>
