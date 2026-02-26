@@ -63,8 +63,13 @@ const Image = () => {
   });
   const [uploadPercent, setUploadPercent] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  const [progressState, setProgressState] = useState<
+    'hidden' | 'visible' | 'exiting'
+  >('hidden');
   const uploadTimerRef = useRef<number | null>(null);
   const uploadDoneRef = useRef(false);
+  const progressHideTimerRef = useRef<number | null>(null);
+  const progressExitTimerRef = useRef<number | null>(null);
 
   function dragenter(e) {
     e.stopPropagation();
@@ -274,12 +279,45 @@ const Image = () => {
 
   const { uploadSingleFile } = useImageUpload();
 
+  const clearProgressTimers = () => {
+    if (progressHideTimerRef.current) {
+      window.clearTimeout(progressHideTimerRef.current);
+      progressHideTimerRef.current = null;
+    }
+    if (progressExitTimerRef.current) {
+      window.clearTimeout(progressExitTimerRef.current);
+      progressExitTimerRef.current = null;
+    }
+  };
+
+  const showProgress = () => {
+    clearProgressTimers();
+    setProgressState('visible');
+  };
+
+  const hideProgress = (delay = 0) => {
+    clearProgressTimers();
+    const startExit = () => {
+      setProgressState('exiting');
+      progressExitTimerRef.current = window.setTimeout(() => {
+        setProgressState('hidden');
+        setUploadPercent(0);
+      }, 200);
+    };
+    if (delay > 0) {
+      progressHideTimerRef.current = window.setTimeout(startExit, delay);
+      return;
+    }
+    startExit();
+  };
+
   const startFakeProgress = () => {
     if (uploadTimerRef.current) {
       window.clearInterval(uploadTimerRef.current);
     }
     uploadDoneRef.current = false;
     setUploadPercent(0);
+    showProgress();
     const startedAt = Date.now();
     const durationMs = 5000;
     uploadTimerRef.current = window.setInterval(() => {
@@ -297,13 +335,14 @@ const Image = () => {
     }, 100);
   };
 
-  const finishProgress = (percent: number) => {
+  const finishProgress = (percent: number, delay = 0) => {
     uploadDoneRef.current = true;
     if (uploadTimerRef.current) {
       window.clearInterval(uploadTimerRef.current);
       uploadTimerRef.current = null;
     }
     setUploadPercent(percent);
+    hideProgress(delay);
   };
 
   useEffect(() => {
@@ -312,6 +351,7 @@ const Image = () => {
         window.clearInterval(uploadTimerRef.current);
         uploadTimerRef.current = null;
       }
+      clearProgressTimers();
     };
   }, []);
 
@@ -330,7 +370,7 @@ const Image = () => {
     startFakeProgress();
     uploadSingleFile(e.target.files[0])
       .then((url) => {
-        finishProgress(100);
+        finishProgress(100, 300);
         setLink({ ...link, value: url });
         setImageName({ ...imageName, value: files[0].name });
       })
@@ -383,8 +423,10 @@ const Image = () => {
                   <Form.Control.Feedback type="invalid">
                     {t('image.form_image.fields.file.msg.empty')}
                   </Form.Control.Feedback>
-                  {currentTab === 'localImage' && uploadPercent > 0 && (
-                    <div className="mt-2 d-flex align-items-center gap-2">
+                  {currentTab === 'localImage' && (
+                    <div
+                      className="image-upload-progress d-flex align-items-center gap-2"
+                      data-state={progressState}>
                       <ProgressBar
                         now={uploadPercent}
                         variant="success"

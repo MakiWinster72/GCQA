@@ -167,6 +167,27 @@
     }
   }
 }
+
+.image-upload-progress {
+  width: 100%;
+  overflow: hidden;
+  opacity: 0;
+  max-height: 0;
+  margin-top: 0;
+  transition: opacity 200ms ease, max-height 200ms ease, margin-top 200ms ease;
+
+  &[data-state='visible'] {
+    opacity: 1;
+    max-height: 28px;
+    margin-top: 8px;
+  }
+
+  &[data-state='exiting'] {
+    opacity: 0;
+    max-height: 0;
+    margin-top: 0;
+  }
+}
 .preview-wrap {
   overflow-y: auto;
   min-height: 20px;
