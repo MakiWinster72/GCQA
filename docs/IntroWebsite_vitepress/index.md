@@ -2,9 +2,9 @@
 layout: home
 
 hero:
-  name: "广财问答平台文档"
-  text: "GCQA Docs"
-  tagline: "部署、配置与运维文档"
+  name: "广财问答平台"
+  text: "GCQA wiki"
+  tagline: "基于 Apache Answer, 为广财打造的 Q&A 平台。"
   image:
     src: /show.png
     alt: GCQA logo
@@ -13,11 +13,8 @@ hero:
       text: 项目介绍
       link: /项目介绍
     - theme: alt
-      text: 安装手册
-      link: /安装手册/
-    - theme: alt
-      text: 使用手册
-      link: /使用手册/
+      text: demo
+      link: https://gcqa.makis-life.cn
 
 features:
   - title: 安装部署

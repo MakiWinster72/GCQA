@@ -45,6 +45,8 @@ SSL
 前面获取的密码
 ```
 
-填写测试游戏保存后，等待约半分钟，测试游戏会收到如下效果的测试邮件：
+填写测试邮箱保存后，等待约半分钟，测试邮箱会收到如下效果的测试邮件：
 
-![](https://img.makis-life.cn/imagesNew/084a5f032bef71e74c47a5c0f92f4d2c_MD5.png?x-oss-process=style/yasuo)
+![](https://img.makis-life.cn/imagesNew/IMG_6690.PNG?x-oss-process=style/yasuo)
+
+![](https://img.makis-life.cn/imagesNew/IMG_6694.PNG?x-oss-process=style/yasuo)
