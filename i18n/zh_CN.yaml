@@ -852,7 +852,7 @@ ui:
     recent_conversations: 新对话
     show_more: 显示更多
     new: 新聊天
-    ai_generate: 来自帖子的 AI，可能不准确。
+    ai_generate: 基于已有问答回复的 AI，可能不准确。
     copy: 复制
     ask_a_follow_up: 提出后续问题
     ask_placeholder: 提问
