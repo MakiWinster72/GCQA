@@ -856,6 +856,8 @@ ui:
     copy: 复制
     ask_a_follow_up: 提出后续问题
     ask_placeholder: 提问
+    helpful: 有帮助
+    unhelpful: 没有帮助
   notifications:
     title: 通知
     inbox: 收件箱
@@ -2357,8 +2359,6 @@ ui:
         conversations: 对话
         settings: 设置
       topic: 主题
-      helpful: 有帮助
-      unhelpful: 没有帮助
       created: 创建于
       action: 操作
       empty: 没有找到会话

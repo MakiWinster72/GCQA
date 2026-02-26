@@ -867,6 +867,8 @@ ui:
     copy: Copy
     ask_a_follow_up: Ask a follow-up
     ask_placeholder: Ask a question
+    helpful: Helpful
+    unhelpful: Unhelpful
   notifications:
     title: Notifications
     inbox: Inbox
@@ -2393,8 +2395,6 @@ ui:
         conversations: Conversations
         settings: Settings
       topic: Topic
-      helpful: Helpful
-      unhelpful: Unhelpful
       created: Created
       action: Action
       empty: No conversations found.

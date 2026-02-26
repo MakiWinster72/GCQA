@@ -240,14 +240,14 @@ const BubbleAi: FC<IProps> = ({
               className={`p-0 small me-3 ${isHelpful ? 'link-primary active' : 'link-secondary'}`}
               onClick={() => handleVote('helpful')}>
               <Icon name="hand-thumbs-up-fill" />
-              <span className="ms-1">Helpful</span>
+              <span className="ms-1">{t('helpful')}</span>
             </Button>
             <Button
               variant="link"
               className={`p-0 small me-3 ${isUnhelpful ? 'link-primary active' : 'link-secondary'}`}
               onClick={() => handleVote('unhelpful')}>
               <Icon name="hand-thumbs-down-fill" />
-              <span className="ms-1">Unhelpful</span>
+              <span className="ms-1">{t('unhelpful')}</span>
             </Button>
           </div>
         )}
