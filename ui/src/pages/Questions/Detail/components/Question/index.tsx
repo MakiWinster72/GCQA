@@ -195,11 +195,9 @@ const Index: FC<Props> = ({ data, initPage, hasAnswer, isLogged }) => {
           dangerouslySetInnerHTML={{ __html: data?.html }}
         />
         {showSecretInfo && (
-          <div className="question-checks mb-4 p-3 small bg-light border rounded">
-            <div className="fw-semibold mb-1">{t('secret_info')}</div>
-            <div className="text-break" style={{ whiteSpace: 'pre-wrap' }}>
-              {data.secret_info}
-            </div>
+          <div className="secret-info-card">
+            <div className="secret-info-card__title">{t('secret_info')}</div>
+            <div className="secret-info-card__content">{data.secret_info}</div>
           </div>
         )}
       </ImgViewer>

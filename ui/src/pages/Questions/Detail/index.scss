@@ -76,6 +76,43 @@
   margin: 0.5rem 0 0.75rem;
 }
 
+.secret-info-card {
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  border: 1px solid rgba(var(--bs-primary-rgb), 0.2);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(var(--bs-primary-rgb), 0.08),
+      rgba(var(--bs-primary-rgb), 0.03)
+    );
+  color: var(--bs-body-color);
+}
+
+.secret-info-card__title {
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+  color: rgba(var(--bs-primary-rgb), 0.9);
+}
+
+.secret-info-card__content {
+  font-size: 0.95rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--bs-body-color);
+}
+
+[data-bs-theme='dark'] .secret-info-card {
+  border-color: rgba(var(--bs-primary-rgb), 0.4);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(var(--bs-primary-rgb), 0.2),
+      rgba(var(--bs-primary-rgb), 0.08)
+    );
+}
+
 .smile-btn.active::before {
   position: fixed;
   top: 0;
