@@ -30,6 +30,7 @@ export type QuestionDraft = {
     title: string;
     content: string;
     tags: any[];
+    secret_info?: string;
     answer_content: string;
     ask_checks?: { id: string; answer: string }[];
   };

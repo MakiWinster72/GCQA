@@ -262,6 +262,7 @@ func (qc *QuestionController) GetQuestion(ctx *gin.Context) {
 	req.CanShow = canList[7]
 	req.CanInviteOtherToAnswer = canList[8]
 	req.CanRecover = canList[9]
+	req.CanViewSecretInfo = middleware.GetUserIsAdminModerator(ctx)
 
 	info, err := qc.questionService.GetQuestionAndAddPV(ctx, id, userID, req)
 	if err != nil {

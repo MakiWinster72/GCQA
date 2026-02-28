@@ -63,9 +63,19 @@ interface FormDataItem {
   title: Type.FormValue<string>;
   tags: Type.FormValue<Type.Tag[]>;
   content: Type.FormValue<string>;
+  secret_info: Type.FormValue<string>;
   answer_content: Type.FormValue<string>;
   edit_summary: Type.FormValue<string>;
 }
+
+type QuestionDraftValue = {
+  title: string;
+  content: string;
+  tags: Type.Tag[];
+  secret_info?: string;
+  answer_content: string;
+  ask_checks?: { id: string; answer: string }[];
+};
 
 const saveDraft = new SaveDraft({ type: 'question' });
 
@@ -82,6 +92,11 @@ const Ask = () => {
       errorMsg: '',
     },
     content: {
+      value: '',
+      isInvalid: false,
+      errorMsg: '',
+    },
+    secret_info: {
       value: '',
       isInvalid: false,
       errorMsg: '',
@@ -185,7 +200,9 @@ const Ask = () => {
       if (queryTags) {
         updateTags(queryTags);
       }
-      const draft = storageExpires.get(DRAFT_QUESTION_STORAGE_KEY);
+      const draft = storageExpires.get(
+        DRAFT_QUESTION_STORAGE_KEY,
+      ) as QuestionDraftValue | null;
 
       const prefill = searchParams.get('prefill');
       if (prefill || draft) {
@@ -193,6 +210,7 @@ const Ask = () => {
           const file = fm<any>(decodeURIComponent(prefill));
           formData.title.value = file.attributes?.title;
           formData.content.value = file.body;
+          formData.secret_info.value = '';
           if (!queryTags && file.attributes?.tags) {
             // Remove spaces in file.attributes.tags
             const filterTags = file.attributes.tags
@@ -204,6 +222,7 @@ const Ask = () => {
         } else if (draft) {
           formData.title.value = draft.title;
           formData.content.value = draft.content;
+          formData.secret_info.value = draft.secret_info || '';
           formData.tags.value = draft.tags;
           formData.answer_content.value = draft.answer_content;
           if (draft.ask_checks) {
@@ -230,7 +249,7 @@ const Ask = () => {
   }, [qid]);
 
   useEffect(() => {
-    const { title, tags, content, answer_content } = formData;
+    const { title, tags, content, secret_info, answer_content } = formData;
     const { title: editTitle, tags: editTags, content: editContent } = immData;
 
     // edited
@@ -254,6 +273,7 @@ const Ask = () => {
       title.value ||
       tags.value.length > 0 ||
       content.value ||
+      secret_info.value ||
       answer_content.value ||
       Object.keys(askCheckAnswers).length > 0
     ) {
@@ -263,6 +283,7 @@ const Ask = () => {
           title: title.value,
           tags: tags.value,
           content: content.value,
+          secret_info: secret_info.value,
           answer_content: answer_content.value,
           ask_checks: Object.entries(askCheckAnswers).map(([id, answer]) => ({
             id,
@@ -340,6 +361,16 @@ const Ask = () => {
     setFormData((prev) => ({
       ...prev,
       answer_content: { value, errorMsg: '', isInvalid: false },
+    }));
+
+  const handleSecretInfoChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setFormData((prev) => ({
+      ...prev,
+      secret_info: {
+        value: e.currentTarget.value,
+        errorMsg: '',
+        isInvalid: false,
+      },
     }));
 
   const handleAskCheckChange = (id: string, value: string | string[]) => {
@@ -499,9 +530,11 @@ const Ask = () => {
       content: formData.content.value,
       tags: formData.tags.value,
       ask_checks: askCheckPayload,
+      secret_info: formData.secret_info.value,
     };
     if (isEdit) {
       delete params.ask_checks;
+      delete params.secret_info;
     }
 
     if (isEdit) {
@@ -720,6 +753,22 @@ const Ask = () => {
                 errMsg={formData.tags.errorMsg}
               />
             </Form.Group>
+            {!isEdit && (
+              <Form.Group controlId="secret_info" className="my-3">
+                <Form.Label>{t('form.fields.secret_info.label')}</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={formData.secret_info.value}
+                  isInvalid={formData.secret_info.isInvalid}
+                  placeholder={t('form.fields.secret_info.placeholder')}
+                  onChange={handleSecretInfoChange}
+                />
+                <Form.Text>{t('form.fields.secret_info.hint')}</Form.Text>
+                <Form.Control.Feedback type="invalid">
+                  {formData.secret_info.errorMsg}
+                </Form.Control.Feedback>
+              </Form.Group>
+            )}
             {!isEdit && (
               <>
                 <Form.Switch

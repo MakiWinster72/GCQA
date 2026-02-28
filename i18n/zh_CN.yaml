@@ -1171,6 +1171,10 @@ ui:
           label: 标签
           msg:
             empty: 必须选择一个标签
+        secret_info:
+          label: 秘密信息
+          placeholder: 在此填入需要加密的信息，只有版主/管理员可以看见，比如学号、电话号码
+          hint: 在此填入需要加密的信息，只有版主/管理员可以看见，比如学号、电话号码
         answer:
           label: 回答内容
           msg:
@@ -1423,6 +1427,7 @@ ui:
     Follow: 关注此问题
     Following: 已关注
     follow_tip: 关注此问题以接收通知
+    secret_info: 秘密信息
     answered: 回答于
     closed_in: 关闭于
     show_exist: 查看类似问题。

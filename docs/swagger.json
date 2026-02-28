@@ -10982,6 +10982,11 @@
                 "searched_related": {
                     "type": "boolean"
                 },
+                "secret_info": {
+                    "description": "secret info",
+                    "type": "string",
+                    "maxLength": 2048
+                },
                 "tags": {
                     "description": "tags",
                     "type": "array",
@@ -11039,6 +11044,11 @@
                 },
                 "searched_related": {
                     "type": "boolean"
+                },
+                "secret_info": {
+                    "description": "secret info",
+                    "type": "string",
+                    "maxLength": 2048
                 },
                 "tags": {
                     "description": "tags",
@@ -11153,6 +11163,9 @@
                 },
                 "searched_related": {
                     "type": "boolean"
+                },
+                "secret_info": {
+                    "type": "string"
                 },
                 "show": {
                     "type": "integer"

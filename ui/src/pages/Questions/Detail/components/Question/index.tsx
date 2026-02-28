@@ -53,6 +53,7 @@ const Index: FC<Props> = ({ data, initPage, hasAnswer, isLogged }) => {
   const ref = useRef<HTMLDivElement>(null);
   const askChecks = Array.isArray(data?.ask_checks) ? data.ask_checks : [];
   const showQuestionChecks = askChecks.length > 0;
+  const showSecretInfo = Boolean(data?.secret_info);
 
   useRenderHtmlPlugin(ref.current);
 
@@ -193,6 +194,14 @@ const Index: FC<Props> = ({ data, initPage, hasAnswer, isLogged }) => {
           className="fmt text-break text-wrap last-p mb-4"
           dangerouslySetInnerHTML={{ __html: data?.html }}
         />
+        {showSecretInfo && (
+          <div className="question-checks mb-4 p-3 small bg-light border rounded">
+            <div className="fw-semibold mb-1">{t('secret_info')}</div>
+            <div className="text-break" style={{ whiteSpace: 'pre-wrap' }}>
+              {data.secret_info}
+            </div>
+          </div>
+        )}
       </ImgViewer>
 
       <div className="m-n1">

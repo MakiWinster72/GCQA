@@ -57,6 +57,7 @@ import (
 	usercommon "github.com/apache/answer/internal/service/user_common"
 	"github.com/apache/answer/pkg/checker"
 	"github.com/apache/answer/pkg/converter"
+	"github.com/apache/answer/pkg/encryption"
 	"github.com/apache/answer/pkg/htmltext"
 	"github.com/apache/answer/pkg/token"
 	"github.com/apache/answer/pkg/uid"
@@ -365,6 +366,15 @@ func (qs *QuestionService) AddQuestion(ctx context.Context, req *schema.Question
 		}
 	}
 
+	encryptedSecretInfo := ""
+	secretInfo := strings.TrimSpace(req.SecretInfo)
+	if len(secretInfo) > 0 {
+		encryptedSecretInfo, err = encryption.Encrypt(secretInfo)
+		if err != nil {
+			log.Errorf("encrypt question secret info error %v", err)
+		}
+	}
+
 	question := &entity.Question{}
 	now := time.Now()
 	question.UserID = req.UserID
@@ -390,6 +400,15 @@ func (qs *QuestionService) AddQuestion(ctx context.Context, req *schema.Question
 		AskChecks: req.AskChecks,
 	})
 	_ = qs.metaService.AddMeta(ctx, question.ID, entity.QuestionAskCheckMetaKey, string(metaValue))
+	if len(encryptedSecretInfo) > 0 {
+		_ = qs.metaService.AddOrUpdateMetaByObjectIdAndKey(ctx, question.ID, entity.QuestionSecretInfoKey,
+			func(meta *entity.Meta, exist bool) (*entity.Meta, error) {
+				meta.ObjectID = question.ID
+				meta.Key = entity.QuestionSecretInfoKey
+				meta.Value = encryptedSecretInfo
+				return meta, nil
+			})
+	}
 	question.Status = qs.reviewService.AddQuestionReview(ctx, question, req.Tags, req.IP, req.UserAgent)
 	if err := qs.questionRepo.UpdateQuestionStatus(ctx, question.ID, question.Status); err != nil {
 		return nil, err
@@ -1130,6 +1149,16 @@ func (qs *QuestionService) GetQuestion(ctx context.Context, questionID, userID s
 		per.CanClose, per.CanReopen, per.CanPin, per.CanHide, per.CanUnPin, per.CanShow,
 		per.CanRecover)
 	question.ExtendsActions = permission.GetQuestionExtendsPermission(ctx, per.CanInviteOtherToAnswer)
+	canViewSecretInfo := per.CanViewSecretInfo || question.UserID == userID
+	if canViewSecretInfo {
+		metaInfo, metaErr := qs.metaService.GetMetaByObjectIdAndKey(ctx, question.ID, entity.QuestionSecretInfoKey)
+		if metaErr == nil {
+			question.SecretInfo, metaErr = encryption.Decrypt(metaInfo.Value)
+			if metaErr != nil {
+				log.Warnf("decrypt question secret info failed, question_id=%s err=%v", question.ID, metaErr)
+			}
+		}
+	}
 	return question, nil
 }
 

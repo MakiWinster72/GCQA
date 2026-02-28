@@ -80,6 +80,8 @@ type QuestionAdd struct {
 	Title string `validate:"required,notblank,gte=6,lte=150" json:"title"`
 	// content
 	Content string `validate:"gte=0,lte=65535" json:"content"`
+	// secret info
+	SecretInfo string `validate:"omitempty,lte=2048" json:"secret_info"`
 	// html
 	HTML string `json:"-"`
 	// tags
@@ -111,6 +113,8 @@ type QuestionAddByAnswer struct {
 	Title string `validate:"required,notblank,gte=6,lte=150" json:"title"`
 	// content
 	Content string `validate:"gte=0,lte=65535" json:"content"`
+	// secret info
+	SecretInfo string `validate:"omitempty,lte=2048" json:"secret_info"`
 	// html
 	HTML          string `json:"-"`
 	AnswerContent string `validate:"required,notblank,gte=6,lte=65535" json:"answer_content"`
@@ -171,6 +175,7 @@ type QuestionPermission struct {
 	CanInviteOtherToAnswer bool `json:"-"`
 	CanAddTag              bool `json:"-"`
 	CanRecover             bool `json:"-"`
+	CanViewSecretInfo      bool `json:"-"`
 }
 
 type CheckCanQuestionUpdate struct {
@@ -235,43 +240,44 @@ type QuestionBaseInfo struct {
 }
 
 type QuestionInfoResp struct {
-	ID                   string         `json:"id" `
-	Title                string         `json:"title"`
-	UrlTitle             string         `json:"url_title"`
-	Content              string         `json:"content"`
-	HTML                 string         `json:"html"`
-	Description          string         `json:"description"`
-	Tags                 []*TagResp     `json:"tags"`
-	ViewCount            int            `json:"view_count"`
-	UniqueViewCount      int            `json:"unique_view_count"`
-	VoteCount            int            `json:"vote_count"`
-	AnswerCount          int            `json:"answer_count"`
-	CollectionCount      int            `json:"collection_count"`
-	FollowCount          int            `json:"follow_count"`
-	AcceptedAnswerID     string         `json:"accepted_answer_id"`
-	LastAnswerID         string         `json:"last_answer_id"`
-	CreateTime           int64          `json:"create_time"`
-	UpdateTime           int64          `json:"-"`
-	PostUpdateTime       int64          `json:"update_time"`
-	QuestionUpdateTime   int64          `json:"edit_time"`
-	Pin                  int            `json:"pin"`
-	Show                 int            `json:"show"`
-	Status               int            `json:"status"`
-	Operation            *Operation     `json:"operation,omitempty"`
-	UserID               string         `json:"-"`
-	LastEditUserID       string         `json:"-"`
-	LastAnsweredUserID   string         `json:"-"`
-	UserInfo             *UserBasicInfo `json:"user_info"`
-	UpdateUserInfo       *UserBasicInfo `json:"update_user_info,omitempty"`
-	LastAnsweredUserInfo *UserBasicInfo `json:"last_answered_user_info,omitempty"`
-	Answered             bool           `json:"answered"`
-	FirstAnswerId        string         `json:"first_answer_id"`
-	Collected            bool           `json:"collected"`
-	VoteStatus           string         `json:"vote_status"`
-	IsFollowed           bool           `json:"is_followed"`
+	ID                   string                    `json:"id" `
+	Title                string                    `json:"title"`
+	UrlTitle             string                    `json:"url_title"`
+	Content              string                    `json:"content"`
+	HTML                 string                    `json:"html"`
+	Description          string                    `json:"description"`
+	Tags                 []*TagResp                `json:"tags"`
+	ViewCount            int                       `json:"view_count"`
+	UniqueViewCount      int                       `json:"unique_view_count"`
+	VoteCount            int                       `json:"vote_count"`
+	AnswerCount          int                       `json:"answer_count"`
+	CollectionCount      int                       `json:"collection_count"`
+	FollowCount          int                       `json:"follow_count"`
+	AcceptedAnswerID     string                    `json:"accepted_answer_id"`
+	LastAnswerID         string                    `json:"last_answer_id"`
+	CreateTime           int64                     `json:"create_time"`
+	UpdateTime           int64                     `json:"-"`
+	PostUpdateTime       int64                     `json:"update_time"`
+	QuestionUpdateTime   int64                     `json:"edit_time"`
+	Pin                  int                       `json:"pin"`
+	Show                 int                       `json:"show"`
+	Status               int                       `json:"status"`
+	Operation            *Operation                `json:"operation,omitempty"`
+	UserID               string                    `json:"-"`
+	LastEditUserID       string                    `json:"-"`
+	LastAnsweredUserID   string                    `json:"-"`
+	UserInfo             *UserBasicInfo            `json:"user_info"`
+	UpdateUserInfo       *UserBasicInfo            `json:"update_user_info,omitempty"`
+	LastAnsweredUserInfo *UserBasicInfo            `json:"last_answered_user_info,omitempty"`
+	Answered             bool                      `json:"answered"`
+	FirstAnswerId        string                    `json:"first_answer_id"`
+	Collected            bool                      `json:"collected"`
+	VoteStatus           string                    `json:"vote_status"`
+	IsFollowed           bool                      `json:"is_followed"`
 	SearchedRelated      *bool                     `json:"searched_related,omitempty"`
 	ClassGroupUnresolved *bool                     `json:"class_group_unresolved,omitempty"`
 	AskChecks            []*QuestionAskCheckAnswer `json:"ask_checks,omitempty"`
+	SecretInfo           string                    `json:"secret_info,omitempty"`
 
 	// MemberActions
 	MemberActions  []*PermissionMemberAction `json:"member_actions"`
