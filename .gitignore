@@ -44,3 +44,7 @@ dist/
 # AI IDE
 AGENTS.md
 .marscode
+
+# obsidian
+.obsidian/
+TaskNotes/
