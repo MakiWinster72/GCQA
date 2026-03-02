@@ -16,7 +16,7 @@
 
 ![](https://img.makis-life.cn/imagesNew/9d1652a09280a95486d6dbf8e2189ed6_MD5.png?x-oss-process=style/yasuo)
 
-## 生产 SMTP 密码
+## 生成 SMTP 密码
 
 ![](https://img.makis-life.cn/imagesNew/633c0ceb195a93c6ed0b65a824eca213_MD5.png?x-oss-process=style/yasuo)
 
@@ -46,6 +46,10 @@ SSL
 ```
 
 填写测试邮箱保存后，等待约半分钟，测试邮箱会收到如下效果的测试邮件：
+
+![](https://img.makis-life.cn/imagesNew/084a5f032bef71e74c47a5c0f92f4d2c_MD5.png?x-oss-process=style/yasuo)
+
+## 效果
 
 ![](https://img.makis-life.cn/imagesNew/IMG_6690.PNG?x-oss-process=style/yasuo)
 
