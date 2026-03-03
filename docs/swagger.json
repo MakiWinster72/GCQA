@@ -11290,6 +11290,7 @@
                     "type": "string",
                     "enum": [
                         "newest",
+                        "mine",
                         "active",
                         "hot",
                         "score",
