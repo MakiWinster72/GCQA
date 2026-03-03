@@ -972,6 +972,20 @@ func (qs *QuestionService) UpdateQuestion(ctx context.Context, req *schema.Quest
 		return questionInfo, tagerr
 	}
 
+	secretInfo := strings.TrimSpace(req.SecretInfo)
+	existingSecretInfo := ""
+	metaInfo, metaExist, metaErr := qs.metaService.GetMetaByObjectIdAndKeyWithExist(ctx, question.ID, entity.QuestionSecretInfoKey)
+	if metaErr != nil {
+		return questionInfo, metaErr
+	}
+	if metaExist {
+		existingSecretInfo, metaErr = encryption.Decrypt(metaInfo.Value)
+		if metaErr != nil {
+			log.Warnf("decrypt question secret info failed, question_id=%s err=%v", question.ID, metaErr)
+		}
+	}
+	secretInfoChanged := existingSecretInfo != secretInfo
+
 	tagNameList := make([]string, 0)
 	oldtagNameList := make([]string, 0)
 	for _, tag := range req.Tags {
@@ -985,7 +999,7 @@ func (qs *QuestionService) UpdateQuestion(ctx context.Context, req *schema.Quest
 	isChange := qs.tagCommon.CheckTagsIsChange(ctx, tagNameList, oldtagNameList)
 
 	// If the content is the same, ignore it
-	if dbinfo.Title == req.Title && dbinfo.OriginalText == req.Content && !isChange {
+	if dbinfo.Title == req.Title && dbinfo.OriginalText == req.Content && !isChange && !secretInfoChanged {
 		return
 	}
 
@@ -1071,6 +1085,24 @@ func (qs *QuestionService) UpdateQuestion(ctx context.Context, req *schema.Quest
 		errorlist, tagerr := qs.ChangeTag(ctx, &objectTagData)
 		if tagerr != nil {
 			return errorlist, tagerr
+		}
+		if secretInfoChanged {
+			if len(secretInfo) > 0 {
+				encryptedSecretInfo, encryptErr := encryption.Encrypt(secretInfo)
+				if encryptErr != nil {
+					log.Errorf("encrypt question secret info error %v", encryptErr)
+				} else {
+					_ = qs.metaService.AddOrUpdateMetaByObjectIdAndKey(ctx, question.ID, entity.QuestionSecretInfoKey,
+						func(meta *entity.Meta, exist bool) (*entity.Meta, error) {
+							meta.ObjectID = question.ID
+							meta.Key = entity.QuestionSecretInfoKey
+							meta.Value = encryptedSecretInfo
+							return meta, nil
+						})
+				}
+			} else {
+				_ = qs.metaService.RemoveMetaByObjectIdAndKey(ctx, question.ID, entity.QuestionSecretInfoKey)
+			}
 		}
 	}
 

@@ -11457,6 +11457,11 @@
                         "type": "string"
                     }
                 },
+                "secret_info": {
+                    "description": "secret info",
+                    "type": "string",
+                    "maxLength": 2048
+                },
                 "tags": {
                     "description": "tags",
                     "type": "array",

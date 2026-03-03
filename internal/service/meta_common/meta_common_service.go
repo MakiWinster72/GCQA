@@ -77,6 +77,23 @@ func (ms *MetaCommonService) AddOrUpdateMetaByObjectIdAndKey(ctx context.Context
 	return ms.metaRepo.AddOrUpdateMetaByObjectIdAndKey(ctx, objID, key, f)
 }
 
+// GetMetaByObjectIdAndKeyWithExist get meta one with exist flag
+func (ms *MetaCommonService) GetMetaByObjectIdAndKeyWithExist(ctx context.Context, objectID, key string) (meta *entity.Meta, exist bool, err error) {
+	return ms.metaRepo.GetMetaByObjectIdAndKey(ctx, objectID, key)
+}
+
+// RemoveMetaByObjectIdAndKey delete meta by object id and key if exists
+func (ms *MetaCommonService) RemoveMetaByObjectIdAndKey(ctx context.Context, objectID, key string) (err error) {
+	meta, exist, err := ms.metaRepo.GetMetaByObjectIdAndKey(ctx, objectID, key)
+	if err != nil {
+		return err
+	}
+	if !exist {
+		return nil
+	}
+	return ms.metaRepo.RemoveMeta(ctx, meta.ID)
+}
+
 // GetMetaByObjectIdAndKey get meta one
 func (ms *MetaCommonService) GetMetaByObjectIdAndKey(ctx context.Context, objectID, key string) (meta *entity.Meta, err error) {
 	meta, exist, err := ms.metaRepo.GetMetaByObjectIdAndKey(ctx, objectID, key)

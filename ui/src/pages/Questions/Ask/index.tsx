@@ -250,13 +250,19 @@ const Ask = () => {
 
   useEffect(() => {
     const { title, tags, content, secret_info, answer_content } = formData;
-    const { title: editTitle, tags: editTags, content: editContent } = immData;
+    const {
+      title: editTitle,
+      tags: editTags,
+      content: editContent,
+      secret_info: editSecretInfo,
+    } = immData;
 
     // edited
     if (qid) {
       if (
         editTitle.value !== title.value ||
         editContent.value !== content.value ||
+        editSecretInfo.value !== secret_info.value ||
         !isEqual(
           editTags.value.map((v) => v.slug_name),
           tags.value.map((v) => v.slug_name),
@@ -312,6 +318,7 @@ const Ask = () => {
     questionDetail(qid).then((res) => {
       formData.title.value = res.title;
       formData.content.value = res.content;
+      formData.secret_info.value = res.secret_info || '';
       formData.tags.value = res.tags.map((item) => {
         return {
           ...item,
@@ -363,15 +370,17 @@ const Ask = () => {
       answer_content: { value, errorMsg: '', isInvalid: false },
     }));
 
-  const handleSecretInfoChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+  const handleSecretInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e?.currentTarget?.value ?? '';
     setFormData((prev) => ({
       ...prev,
       secret_info: {
-        value: e.currentTarget.value,
+        value,
         errorMsg: '',
         isInvalid: false,
       },
     }));
+  };
 
   const handleAskCheckChange = (id: string, value: string | string[]) => {
     setAskCheckAnswers((prev) => ({ ...prev, [id]: value }));
@@ -534,7 +543,6 @@ const Ask = () => {
     };
     if (isEdit) {
       delete params.ask_checks;
-      delete params.secret_info;
     }
 
     if (isEdit) {
@@ -753,22 +761,20 @@ const Ask = () => {
                 errMsg={formData.tags.errorMsg}
               />
             </Form.Group>
-            {!isEdit && (
-              <Form.Group controlId="secret_info" className="my-3">
-                <Form.Label>{t('form.fields.secret_info.label')}</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={formData.secret_info.value}
-                  isInvalid={formData.secret_info.isInvalid}
-                  placeholder={t('form.fields.secret_info.placeholder')}
-                  onChange={handleSecretInfoChange}
-                />
-                <Form.Text>{t('form.fields.secret_info.hint')}</Form.Text>
-                <Form.Control.Feedback type="invalid">
-                  {formData.secret_info.errorMsg}
-                </Form.Control.Feedback>
-              </Form.Group>
-            )}
+            <Form.Group controlId="secret_info" className="my-3">
+              <Form.Label>{t('form.fields.secret_info.label')}</Form.Label>
+              <Form.Control
+                type="text"
+                value={formData.secret_info.value}
+                isInvalid={formData.secret_info.isInvalid}
+                placeholder={t('form.fields.secret_info.placeholder')}
+                onChange={handleSecretInfoChange}
+              />
+              <Form.Text>{t('form.fields.secret_info.hint')}</Form.Text>
+              <Form.Control.Feedback type="invalid">
+                {formData.secret_info.errorMsg}
+              </Form.Control.Feedback>
+            </Form.Group>
             {!isEdit && (
               <>
                 <Form.Switch
