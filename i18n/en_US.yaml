@@ -2400,6 +2400,8 @@ ui:
         conversations: Conversations
         settings: Settings
       topic: Topic
+      helpful: Helpful
+      unhelpful: Unhelpful
       created: Created
       action: Action
       empty: No conversations found.

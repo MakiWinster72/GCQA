@@ -2364,6 +2364,8 @@ ui:
         conversations: 对话
         settings: 设置
       topic: 主题
+      helpful: 有帮助
+      unhelpful: 没有帮助
       created: 创建于
       action: 操作
       empty: 没有找到会话
