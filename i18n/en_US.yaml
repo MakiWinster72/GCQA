@@ -1189,9 +1189,9 @@ ui:
           msg:
             empty: Tags cannot be empty.
         secret_info:
-          label: Secret Information
-          placeholder: Fill in encrypted details here. Only moderators/admins can view it, for example student ID or phone number.
-          hint: Fill in encrypted details here. Only moderators/admins can view it, for example student ID or phone number.
+          label: Secret Information (optional)
+          placeholder: Your Student ID or Phone Number etc.
+          hint: Fill in encrypted details here. Only moderators/admins can view it.
         is_public:
           label: Public question
           hint: Turn off to make this question visible only to you, moderators, and admins.

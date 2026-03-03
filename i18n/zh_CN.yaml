@@ -1172,12 +1172,12 @@ ui:
           msg:
             empty: 必须选择一个标签
         secret_info:
-          label: 秘密信息
-          placeholder: 在此填入需要加密的信息，只有版主/管理员可以看见，比如学号、电话号码
+          label: 秘密信息(可选)
+          placeholder: 学号、电话号码等信息
           hint: 在此填入需要加密的信息，只有版主/管理员可以看见，比如学号、电话号码
         is_public:
           label: 公开问题
-          hint: 关闭后该问题仅自己、版主和管理员可见。
+          hint: 关闭后该问题仅自己、版主和管理员可见。(非必要请勿关闭，可以帮助更多同学)
         answer:
           label: 回答内容
           msg:
