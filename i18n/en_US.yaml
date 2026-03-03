@@ -1192,6 +1192,9 @@ ui:
           label: Secret Information
           placeholder: Fill in encrypted details here. Only moderators/admins can view it, for example student ID or phone number.
           hint: Fill in encrypted details here. Only moderators/admins can view it, for example student ID or phone number.
+        is_public:
+          label: Public question
+          hint: Turn off to make this question visible only to you, moderators, and admins.
         answer:
           label: Answer
           msg:

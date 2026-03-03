@@ -166,6 +166,9 @@ func (c *MCPController) MCPAnswersHandler() func(ctx context.Context, request mc
 		if len(cond.QuestionID) == 0 {
 			return mcp.NewToolResultText("[]"), nil
 		}
+		if _, err := c.questioncommon.Info(ctx, cond.QuestionID, ""); err != nil {
+			return mcp.NewToolResultText("[]"), nil
+		}
 		answerSearch := &entity.AnswerSearch{
 			Answer: entity.Answer{
 				QuestionID: cond.QuestionID,

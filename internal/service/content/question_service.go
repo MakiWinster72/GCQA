@@ -391,6 +391,9 @@ func (qs *QuestionService) AddQuestion(ctx context.Context, req *schema.Question
 	question.PostUpdateTime = now
 	question.Pin = entity.QuestionUnPin
 	question.Show = entity.QuestionShow
+	if req.IsPublic != nil && !*req.IsPublic {
+		question.Show = entity.QuestionPrivate
+	}
 	// question.UpdatedAt = nil
 	err = qs.questionRepo.AddQuestion(ctx, question)
 	if err != nil {
@@ -413,7 +416,7 @@ func (qs *QuestionService) AddQuestion(ctx context.Context, req *schema.Question
 	if err := qs.questionRepo.UpdateQuestionStatus(ctx, question.ID, question.Status); err != nil {
 		return nil, err
 	}
-	if question.Status == entity.QuestionStatusAvailable {
+	if question.Status == entity.QuestionStatusAvailable && question.Show == entity.QuestionShow {
 		question.ParsedText, err = qs.questioncommon.UpdateQuestionLink(ctx, question.ID, "", question.ParsedText, question.OriginalText)
 		if err != nil {
 			return nil, err
@@ -495,6 +498,11 @@ func (qs *QuestionService) OperationQuestion(ctx context.Context, req *schema.Op
 	}
 	// Hidden question cannot be placed at the top
 	if questionInfo.Show == entity.QuestionHide && req.Operation == schema.QuestionOperationPin {
+		return nil
+	}
+	// Private question cannot be placed at the top or shown by moderation switch.
+	if questionInfo.Show == entity.QuestionPrivate &&
+		(req.Operation == schema.QuestionOperationPin || req.Operation == schema.QuestionOperationShow) {
 		return nil
 	}
 	// Question cannot be hidden when they are at the top
@@ -952,6 +960,17 @@ func (qs *QuestionService) UpdateQuestion(ctx context.Context, req *schema.Quest
 	question.PostUpdateTime = now
 	question.UserID = dbinfo.UserID
 	question.LastEditUserID = req.UserID
+	question.Show = dbinfo.Show
+	targetShow := dbinfo.Show
+	if dbinfo.Show != entity.QuestionHide && req.IsPublic != nil {
+		if *req.IsPublic {
+			targetShow = entity.QuestionShow
+		} else {
+			targetShow = entity.QuestionPrivate
+		}
+	}
+	question.Show = targetShow
+	showChanged := dbinfo.Show != targetShow
 
 	minimumContentLength, err := qs.questioncommon.GetMinimumContentLength(ctx)
 	if err != nil {
@@ -999,7 +1018,7 @@ func (qs *QuestionService) UpdateQuestion(ctx context.Context, req *schema.Quest
 	isChange := qs.tagCommon.CheckTagsIsChange(ctx, tagNameList, oldtagNameList)
 
 	// If the content is the same, ignore it
-	if dbinfo.Title == req.Title && dbinfo.OriginalText == req.Content && !isChange && !secretInfoChanged {
+	if dbinfo.Title == req.Title && dbinfo.OriginalText == req.Content && !isChange && !secretInfoChanged && !showChanged {
 		return
 	}
 
@@ -1070,11 +1089,17 @@ func (qs *QuestionService) UpdateQuestion(ctx context.Context, req *schema.Quest
 		// Direct modification
 		revisionDTO.Status = entity.RevisionReviewPassStatus
 		// update question to db
-		question.ParsedText, err = qs.questioncommon.UpdateQuestionLink(ctx, question.ID, "", question.ParsedText, question.OriginalText)
-		if err != nil {
-			return questionInfo, err
+		if question.Show == entity.QuestionShow {
+			question.ParsedText, err = qs.questioncommon.UpdateQuestionLink(ctx, question.ID, "", question.ParsedText, question.OriginalText)
+			if err != nil {
+				return questionInfo, err
+			}
 		}
-		saveerr := qs.questionRepo.UpdateQuestion(ctx, question, []string{"title", "original_text", "parsed_text", "updated_at", "post_update_time", "last_edit_user_id"})
+		updateCols := []string{"title", "original_text", "parsed_text", "updated_at", "post_update_time", "last_edit_user_id"}
+		if showChanged {
+			updateCols = append(updateCols, "show")
+		}
+		saveerr := qs.questionRepo.UpdateQuestion(ctx, question, updateCols)
 		if saveerr != nil {
 			return questionInfo, saveerr
 		}
@@ -1102,6 +1127,38 @@ func (qs *QuestionService) UpdateQuestion(ctx context.Context, req *schema.Quest
 				}
 			} else {
 				_ = qs.metaService.RemoveMetaByObjectIdAndKey(ctx, question.ID, entity.QuestionSecretInfoKey)
+			}
+		}
+		if showChanged {
+			if question.Show == entity.QuestionPrivate {
+				if err = qs.questionRepo.RemoveQuestionLink(ctx, &entity.QuestionLink{
+					FromQuestionID: question.ID,
+				}, &entity.QuestionLink{
+					ToQuestionID: question.ID,
+				}); err != nil {
+					return questionInfo, err
+				}
+				if err = qs.tagCommon.HideTagRelListByObjectID(ctx, question.ID); err != nil {
+					return questionInfo, err
+				}
+				if err = qs.tagCommon.RefreshTagCountByQuestionID(ctx, question.ID); err != nil {
+					return questionInfo, err
+				}
+			}
+			if dbinfo.Show == entity.QuestionPrivate && question.Show == entity.QuestionShow {
+				if err = qs.questionRepo.RecoverQuestionLink(ctx, &entity.QuestionLink{
+					FromQuestionID: question.ID,
+				}, &entity.QuestionLink{
+					ToQuestionID: question.ID,
+				}); err != nil {
+					return questionInfo, err
+				}
+				if err = qs.tagCommon.ShowTagRelListByObjectID(ctx, question.ID); err != nil {
+					return questionInfo, err
+				}
+				if err = qs.tagCommon.RefreshTagCountByQuestionID(ctx, question.ID); err != nil {
+					return questionInfo, err
+				}
 			}
 		}
 	}
@@ -1159,6 +1216,11 @@ func (qs *QuestionService) GetQuestion(ctx context.Context, questionID, userID s
 	}
 	if question.Show == entity.QuestionHide {
 		per.CanHide = false
+		per.CanPin = false
+	}
+	if question.Show == entity.QuestionPrivate {
+		per.CanHide = false
+		per.CanShow = false
 		per.CanPin = false
 	}
 
@@ -1424,7 +1486,7 @@ func (qs *QuestionService) SearchUserTopList(ctx context.Context, userName strin
 }
 
 // GetQuestionsByTitle get questions by title
-func (qs *QuestionService) GetQuestionsByTitle(ctx context.Context, title string) (
+func (qs *QuestionService) GetQuestionsByTitle(ctx context.Context, title, loginUserID string) (
 	resp []*schema.QuestionBaseInfo, err error) {
 	resp = make([]*schema.QuestionBaseInfo, 0)
 	if len(title) == 0 {
@@ -1466,7 +1528,25 @@ func (qs *QuestionService) GetQuestionsByTitle(ctx context.Context, title string
 			return resp, questionErr
 		}
 	}
+	loginUserRoleID := role.RoleUserID
+	loginUserRoleChecked := false
+
 	for _, question := range questions {
+		if question.Show == entity.QuestionPrivate && question.UserID != loginUserID {
+			if loginUserID == "" {
+				continue
+			}
+			if !loginUserRoleChecked {
+				loginUserRoleID, err = qs.userRoleRelService.GetUserRole(ctx, loginUserID)
+				if err != nil {
+					return resp, err
+				}
+				loginUserRoleChecked = true
+			}
+			if loginUserRoleID != role.RoleAdminID && loginUserRoleID != role.RoleModeratorID {
+				continue
+			}
+		}
 		item := &schema.QuestionBaseInfo{}
 		item.ID = question.ID
 		item.Title = question.Title

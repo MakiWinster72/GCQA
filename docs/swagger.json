@@ -11050,6 +11050,10 @@
                     "maxLength": 65535,
                     "minLength": 0
                 },
+                "is_public": {
+                    "description": "question visibility",
+                    "type": "boolean"
+                },
                 "searched_related": {
                     "type": "boolean"
                 },
@@ -11106,6 +11110,10 @@
                     "type": "string",
                     "maxLength": 65535,
                     "minLength": 0
+                },
+                "is_public": {
+                    "description": "question visibility",
+                    "type": "boolean"
                 },
                 "mention_username_list": {
                     "type": "array",
@@ -11211,6 +11219,9 @@
                     "type": "string"
                 },
                 "is_followed": {
+                    "type": "boolean"
+                },
+                "is_public": {
                     "type": "boolean"
                 },
                 "last_answer_id": {
@@ -11457,6 +11468,10 @@
                     "items": {
                         "type": "string"
                     }
+                },
+                "is_public": {
+                    "description": "question visibility",
+                    "type": "boolean"
                 },
                 "secret_info": {
                     "description": "secret info",

@@ -809,7 +809,8 @@ func (qc *QuestionController) UpdateQuestionInviteUser(ctx *gin.Context) {
 // @Router /answer/api/v1/question/similar [get]
 func (qc *QuestionController) GetSimilarQuestions(ctx *gin.Context) {
 	title := ctx.Query("title")
-	resp, err := qc.questionService.GetQuestionsByTitle(ctx, title)
+	loginUserID := middleware.GetLoginUserIDFromContext(ctx)
+	resp, err := qc.questionService.GetQuestionsByTitle(ctx, title, loginUserID)
 	handler.HandleResponse(ctx, err, resp)
 }
 

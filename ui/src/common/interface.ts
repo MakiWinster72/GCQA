@@ -83,6 +83,7 @@ export interface QuestionParams extends ImgCodeReq {
   url_title?: string;
   content: string;
   tags: Tag[];
+  is_public?: boolean;
   searched_related?: boolean;
   class_group_unresolved?: boolean;
   ask_checks?: AskCheckAnswer[];
@@ -259,6 +260,7 @@ export interface QuestionDetailRes {
   collected: boolean;
   answer_ids: string[];
   ask_checks?: AskCheckAnswer[];
+  is_public?: boolean;
   secret_info?: string;
 
   [prop: string]: any;

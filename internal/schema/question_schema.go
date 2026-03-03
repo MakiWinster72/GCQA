@@ -82,6 +82,8 @@ type QuestionAdd struct {
 	Content string `validate:"gte=0,lte=65535" json:"content"`
 	// secret info
 	SecretInfo string `validate:"omitempty,lte=2048" json:"secret_info"`
+	// question visibility
+	IsPublic *bool `json:"is_public"`
 	// html
 	HTML string `json:"-"`
 	// tags
@@ -115,6 +117,8 @@ type QuestionAddByAnswer struct {
 	Content string `validate:"gte=0,lte=65535" json:"content"`
 	// secret info
 	SecretInfo string `validate:"omitempty,lte=2048" json:"secret_info"`
+	// question visibility
+	IsPublic *bool `json:"is_public"`
 	// html
 	HTML          string `json:"-"`
 	AnswerContent string `validate:"required,notblank,gte=6,lte=65535" json:"answer_content"`
@@ -195,6 +199,8 @@ type QuestionUpdate struct {
 	Content string `validate:"gte=0,lte=65535" json:"content"`
 	// secret info
 	SecretInfo string `validate:"omitempty,lte=2048" json:"secret_info"`
+	// question visibility
+	IsPublic *bool `json:"is_public"`
 	// html
 	HTML       string   `json:"-"`
 	InviteUser []string `validate:"omitempty"  json:"invite_user"`
@@ -263,6 +269,7 @@ type QuestionInfoResp struct {
 	QuestionUpdateTime   int64                     `json:"edit_time"`
 	Pin                  int                       `json:"pin"`
 	Show                 int                       `json:"show"`
+	IsPublic             bool                      `json:"is_public"`
 	Status               int                       `json:"status"`
 	Operation            *Operation                `json:"operation,omitempty"`
 	UserID               string                    `json:"-"`

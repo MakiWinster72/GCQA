@@ -38,6 +38,7 @@ import (
 	"github.com/apache/answer/internal/service/config"
 	metacommon "github.com/apache/answer/internal/service/meta_common"
 	"github.com/apache/answer/internal/service/revision"
+	"github.com/apache/answer/internal/service/role"
 	"github.com/apache/answer/pkg/checker"
 	"github.com/apache/answer/pkg/htmltext"
 	"github.com/apache/answer/pkg/uid"
@@ -140,6 +141,31 @@ func NewQuestionCommon(questionRepo QuestionRepo,
 		siteInfoService:      siteInfoService,
 		data:                 data,
 	}
+}
+
+func (qs *QuestionCommon) canViewQuestion(question *entity.Question, loginUserID string, loginUserRoleID int) bool {
+	if question.Show != entity.QuestionPrivate {
+		return true
+	}
+	if loginUserID == question.UserID {
+		return true
+	}
+	return loginUserRoleID == role.RoleAdminID || loginUserRoleID == role.RoleModeratorID
+}
+
+func (qs *QuestionCommon) getLoginUserRoleID(ctx context.Context, loginUserID string) (int, error) {
+	if loginUserID == "" {
+		return role.RoleUserID, nil
+	}
+	userRoleRel := &entity.UserRoleRel{}
+	has, err := qs.data.DB.Context(ctx).Where("user_id = ?", loginUserID).Get(userRoleRel)
+	if err != nil {
+		return 0, errors.InternalServer(reason.DatabaseError).WithError(err).WithStack()
+	}
+	if !has {
+		return role.RoleUserID, nil
+	}
+	return userRoleRel.RoleID, nil
 }
 
 func (qs *QuestionCommon) GetUserQuestionCount(ctx context.Context, userID string) (count int64, err error) {
@@ -259,6 +285,15 @@ func (qs *QuestionCommon) Info(ctx context.Context, questionID string, loginUser
 	questionInfo.ID = uid.DeShortID(questionInfo.ID)
 	if !has {
 		return resp, errors.NotFound(reason.QuestionNotFound)
+	}
+	if questionInfo.Show == entity.QuestionPrivate {
+		loginUserRoleID, roleErr := qs.getLoginUserRoleID(ctx, loginUserID)
+		if roleErr != nil {
+			return resp, roleErr
+		}
+		if !qs.canViewQuestion(questionInfo, loginUserID, loginUserRoleID) {
+			return resp, errors.NotFound(reason.QuestionNotFound)
+		}
 	}
 	resp = qs.ShowFormat(ctx, questionInfo)
 	metaInfo, err := qs.metaCommonService.GetMetaByObjectIdAndKey(ctx, questionInfo.ID, entity.QuestionAskCheckMetaKey)
@@ -483,8 +518,28 @@ func (qs *QuestionCommon) FormatQuestions(ctx context.Context, questionList []*e
 	list := make([]*schema.QuestionInfoResp, 0)
 	objectIds := make([]string, 0)
 	userIds := make([]string, 0)
+	loginUserRoleID := role.RoleUserID
+	if loginUserID != "" {
+		needRoleLookup := false
+		for _, questionInfo := range questionList {
+			if questionInfo.Show == entity.QuestionPrivate && questionInfo.UserID != loginUserID {
+				needRoleLookup = true
+				break
+			}
+		}
+		if needRoleLookup {
+			var err error
+			loginUserRoleID, err = qs.getLoginUserRoleID(ctx, loginUserID)
+			if err != nil {
+				return list, err
+			}
+		}
+	}
 
 	for _, questionInfo := range questionList {
+		if !qs.canViewQuestion(questionInfo, loginUserID, loginUserRoleID) {
+			continue
+		}
 		item := qs.ShowFormat(ctx, questionInfo)
 		list = append(list, item)
 		objectIds = append(objectIds, item.ID)
@@ -685,6 +740,7 @@ func (qs *QuestionCommon) ShowFormat(ctx context.Context, data *entity.Question)
 	info.Status = data.Status
 	info.Pin = data.Pin
 	info.Show = data.Show
+	info.IsPublic = data.Show != entity.QuestionPrivate
 	info.UserID = data.UserID
 	info.LastEditUserID = data.LastEditUserID
 	if data.LastAnswerID != "0" {

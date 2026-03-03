@@ -434,7 +434,7 @@ func (tc *TemplateController) QuestionInfo(ctx *gin.Context) {
 		"detail":          detail,
 		"answers":         answers,
 		"comments":        comments,
-		"noindex":         detail.Show == entity.QuestionHide,
+		"noindex":         detail.Show == entity.QuestionHide || detail.Show == entity.QuestionPrivate,
 		"useTitle":        UrlUseTitle,
 		"relatedQuestion": relatedQuestion,
 	})

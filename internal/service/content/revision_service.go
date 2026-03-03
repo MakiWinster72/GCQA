@@ -197,10 +197,14 @@ func (rs *RevisionService) revisionAuditQuestion(ctx context.Context, revisionit
 		question.Title = questioninfo.Title
 		question.OriginalText = questioninfo.Content
 		question.ParsedText = questioninfo.HTML
+		question.Show = questioninfo.Show
+		if question.Show != entity.QuestionShow && question.Show != entity.QuestionHide && question.Show != entity.QuestionPrivate {
+			question.Show = dbquestion.Show
+		}
 		question.UpdatedAt = time.Unix(questioninfo.UpdateTime, 0)
 		question.PostUpdateTime = PostUpdateTime
 		question.LastEditUserID = revisionitem.UserID
-		saveerr := rs.questionRepo.UpdateQuestion(ctx, question, []string{"title", "original_text", "parsed_text", "updated_at", "post_update_time", "last_edit_user_id"})
+		saveerr := rs.questionRepo.UpdateQuestion(ctx, question, []string{"title", "original_text", "parsed_text", "show", "updated_at", "post_update_time", "last_edit_user_id"})
 		if saveerr != nil {
 			return saveerr
 		}
@@ -220,6 +224,38 @@ func (rs *RevisionService) revisionAuditQuestion(ctx context.Context, revisionit
 		_, saveerr = rs.tagCommon.ObjectChangeTag(ctx, &objectTagData, minimumTags)
 		if saveerr != nil {
 			return saveerr
+		}
+		if dbquestion.Show != question.Show {
+			if question.Show == entity.QuestionPrivate {
+				if err = rs.questionRepo.RemoveQuestionLink(ctx, &entity.QuestionLink{
+					FromQuestionID: question.ID,
+				}, &entity.QuestionLink{
+					ToQuestionID: question.ID,
+				}); err != nil {
+					return err
+				}
+				if err = rs.tagCommon.HideTagRelListByObjectID(ctx, question.ID); err != nil {
+					return err
+				}
+				if err = rs.tagCommon.RefreshTagCountByQuestionID(ctx, question.ID); err != nil {
+					return err
+				}
+			}
+			if dbquestion.Show == entity.QuestionPrivate && question.Show == entity.QuestionShow {
+				if err = rs.questionRepo.RecoverQuestionLink(ctx, &entity.QuestionLink{
+					FromQuestionID: question.ID,
+				}, &entity.QuestionLink{
+					ToQuestionID: question.ID,
+				}); err != nil {
+					return err
+				}
+				if err = rs.tagCommon.ShowTagRelListByObjectID(ctx, question.ID); err != nil {
+					return err
+				}
+				if err = rs.tagCommon.RefreshTagCountByQuestionID(ctx, question.ID); err != nil {
+					return err
+				}
+			}
 		}
 		rs.activityQueueService.Send(ctx, &schema.ActivityMsg{
 			UserID:           revisionitem.UserID,

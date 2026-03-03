@@ -112,6 +112,31 @@ func NewAnswerService(
 	}
 }
 
+func (as *AnswerService) canViewQuestion(question *entity.Question, loginUserID string, loginUserRoleID int) bool {
+	if question.Show != entity.QuestionPrivate {
+		return true
+	}
+	if loginUserID == question.UserID {
+		return true
+	}
+	return loginUserRoleID == role.RoleAdminID || loginUserRoleID == role.RoleModeratorID
+}
+
+func (as *AnswerService) checkQuestionVisibility(ctx context.Context, question *entity.Question, loginUserID string) error {
+	loginUserRoleID := role.RoleUserID
+	if loginUserID != "" {
+		var err error
+		loginUserRoleID, err = as.roleService.GetUserRole(ctx, loginUserID)
+		if err != nil {
+			return err
+		}
+	}
+	if !as.canViewQuestion(question, loginUserID, loginUserRoleID) {
+		return errors.BadRequest(reason.QuestionNotFound)
+	}
+	return nil
+}
+
 // RemoveAnswer delete answer
 func (as *AnswerService) RemoveAnswer(ctx context.Context, req *schema.RemoveAnswerReq) (err error) {
 	answerInfo, exist, err := as.answerRepo.GetByID(ctx, req.ID)
@@ -250,6 +275,9 @@ func (as *AnswerService) Insert(ctx context.Context, req *schema.AnswerAddReq) (
 	if !exist {
 		return "", errors.BadRequest(reason.QuestionNotFound)
 	}
+	if err = as.checkQuestionVisibility(ctx, questionInfo, req.UserID); err != nil {
+		return "", err
+	}
 	if questionInfo.Status == entity.QuestionStatusClosed || questionInfo.Status == entity.QuestionStatusDeleted {
 		err = errors.BadRequest(reason.AnswerCannotAddByClosedQuestion)
 		return "", err
@@ -363,6 +391,9 @@ func (as *AnswerService) Update(ctx context.Context, req *schema.AnswerUpdateReq
 	if !exist {
 		return "", errors.BadRequest(reason.QuestionNotFound)
 	}
+	if err = as.checkQuestionVisibility(ctx, questionInfo, req.UserID); err != nil {
+		return "", err
+	}
 
 	// If the content is the same, ignore it
 	if answerInfo.OriginalText == req.Content {
@@ -439,6 +470,9 @@ func (as *AnswerService) AcceptAnswer(ctx context.Context, req *schema.AcceptAns
 	}
 	if !exist {
 		return errors.BadRequest(reason.QuestionNotFound)
+	}
+	if err = as.checkQuestionVisibility(ctx, questionInfo, req.UserID); err != nil {
+		return err
 	}
 	questionInfo.ID = uid.DeShortID(questionInfo.ID)
 	if questionInfo.AcceptedAnswerID == req.AnswerID {
@@ -621,6 +655,16 @@ func (as *AnswerService) AdminSetAnswerStatus(ctx context.Context, req *schema.A
 
 func (as *AnswerService) SearchList(ctx context.Context, req *schema.AnswerListReq) ([]*schema.AnswerInfo, int64, error) {
 	list := make([]*schema.AnswerInfo, 0)
+	questionInfo, exist, err := as.questionRepo.GetQuestion(ctx, req.QuestionID)
+	if err != nil {
+		return list, 0, err
+	}
+	if !exist {
+		return list, 0, errors.BadRequest(reason.QuestionNotFound)
+	}
+	if err = as.checkQuestionVisibility(ctx, questionInfo, req.UserID); err != nil {
+		return list, 0, err
+	}
 	dbSearch := entity.AnswerSearch{}
 	dbSearch.QuestionID = req.QuestionID
 	dbSearch.Page = req.Page

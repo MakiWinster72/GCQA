@@ -32,6 +32,7 @@ const (
 	QuestionPin             = 2
 	QuestionShow            = 1
 	QuestionHide            = 2
+	QuestionPrivate         = 3
 )
 
 var AdminQuestionSearchStatus = map[string]int{

@@ -63,6 +63,7 @@ interface FormDataItem {
   title: Type.FormValue<string>;
   tags: Type.FormValue<Type.Tag[]>;
   content: Type.FormValue<string>;
+  is_public: Type.FormValue<boolean>;
   secret_info: Type.FormValue<string>;
   answer_content: Type.FormValue<string>;
   edit_summary: Type.FormValue<string>;
@@ -72,6 +73,7 @@ type QuestionDraftValue = {
   title: string;
   content: string;
   tags: Type.Tag[];
+  is_public?: boolean;
   secret_info?: string;
   answer_content: string;
   ask_checks?: { id: string; answer: string }[];
@@ -93,6 +95,11 @@ const Ask = () => {
     },
     content: {
       value: '',
+      isInvalid: false,
+      errorMsg: '',
+    },
+    is_public: {
+      value: true,
       isInvalid: false,
       errorMsg: '',
     },
@@ -210,6 +217,7 @@ const Ask = () => {
           const file = fm<any>(decodeURIComponent(prefill));
           formData.title.value = file.attributes?.title;
           formData.content.value = file.body;
+          formData.is_public.value = true;
           formData.secret_info.value = '';
           if (!queryTags && file.attributes?.tags) {
             // Remove spaces in file.attributes.tags
@@ -222,6 +230,7 @@ const Ask = () => {
         } else if (draft) {
           formData.title.value = draft.title;
           formData.content.value = draft.content;
+          formData.is_public.value = draft.is_public ?? true;
           formData.secret_info.value = draft.secret_info || '';
           formData.tags.value = draft.tags;
           formData.answer_content.value = draft.answer_content;
@@ -249,11 +258,13 @@ const Ask = () => {
   }, [qid]);
 
   useEffect(() => {
-    const { title, tags, content, secret_info, answer_content } = formData;
+    const { title, tags, content, is_public, secret_info, answer_content } =
+      formData;
     const {
       title: editTitle,
       tags: editTags,
       content: editContent,
+      is_public: editPublic,
       secret_info: editSecretInfo,
     } = immData;
 
@@ -262,6 +273,7 @@ const Ask = () => {
       if (
         editTitle.value !== title.value ||
         editContent.value !== content.value ||
+        editPublic.value !== is_public.value ||
         editSecretInfo.value !== secret_info.value ||
         !isEqual(
           editTags.value.map((v) => v.slug_name),
@@ -279,6 +291,7 @@ const Ask = () => {
       title.value ||
       tags.value.length > 0 ||
       content.value ||
+      !is_public.value ||
       secret_info.value ||
       answer_content.value ||
       Object.keys(askCheckAnswers).length > 0
@@ -289,6 +302,7 @@ const Ask = () => {
           title: title.value,
           tags: tags.value,
           content: content.value,
+          is_public: is_public.value,
           secret_info: secret_info.value,
           answer_content: answer_content.value,
           ask_checks: Object.entries(askCheckAnswers).map(([id, answer]) => ({
@@ -318,6 +332,7 @@ const Ask = () => {
     questionDetail(qid).then((res) => {
       formData.title.value = res.title;
       formData.content.value = res.content;
+      formData.is_public.value = res.is_public ?? true;
       formData.secret_info.value = res.secret_info || '';
       formData.tags.value = res.tags.map((item) => {
         return {
@@ -376,6 +391,17 @@ const Ask = () => {
       ...prev,
       secret_info: {
         value,
+        errorMsg: '',
+        isInvalid: false,
+      },
+    }));
+  };
+
+  const handleIsPublicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData((prev) => ({
+      ...prev,
+      is_public: {
+        value: e.target.checked,
         errorMsg: '',
         isInvalid: false,
       },
@@ -538,6 +564,7 @@ const Ask = () => {
       title: formData.title.value,
       content: formData.content.value,
       tags: formData.tags.value,
+      is_public: formData.is_public.value,
       ask_checks: askCheckPayload,
       secret_info: formData.secret_info.value,
     };
@@ -774,6 +801,15 @@ const Ask = () => {
               <Form.Control.Feedback type="invalid">
                 {formData.secret_info.errorMsg}
               </Form.Control.Feedback>
+            </Form.Group>
+            <Form.Group controlId="is_public" className="mb-3">
+              <Form.Check
+                type="switch"
+                checked={formData.is_public.value}
+                label={t('form.fields.is_public.label')}
+                onChange={handleIsPublicChange}
+              />
+              <Form.Text>{t('form.fields.is_public.hint')}</Form.Text>
             </Form.Group>
             {!isEdit && (
               <>
