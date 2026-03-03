@@ -1438,6 +1438,7 @@ ui:
     question_useful: 它是有用和明确的
     question_un_useful: 它不明确或没用的
     question_bookmark: 收藏该问题
+    question_private: 非公开问题
     answer_useful: 这是有用的
     answer_un_useful: 它是没有用的
     answers:

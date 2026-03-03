@@ -1463,6 +1463,7 @@ ui:
     question_useful: It is useful and clear
     question_un_useful: It is unclear or not useful
     question_bookmark: Bookmark this question
+    question_private: Private question
     answer_useful: It is useful
     answer_un_useful: It is not useful
     answers:

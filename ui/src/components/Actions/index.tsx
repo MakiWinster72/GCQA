@@ -42,6 +42,7 @@ interface Props {
     hideCollect?: boolean;
     collected: boolean;
     collectCount: number;
+    isPublic?: boolean;
     username: string;
   };
 }
@@ -176,14 +177,21 @@ const Index: FC<Props> = ({ className, data, source }) => {
         </Button>
       </ButtonGroup>
       {!data?.hideCollect && (
-        <Button
-          variant="outline-secondary ms-3"
-          title={t('question_detail.question_bookmark')}
-          active={bookmarkState.state}
-          onClick={handleBookmark}>
-          <Icon name="bookmark-fill" />
-          <span style={{ paddingLeft: '10px' }}>{bookmarkState.count}</span>
-        </Button>
+        <>
+          <Button
+            variant="outline-secondary ms-3"
+            title={t('question_detail.question_bookmark')}
+            active={bookmarkState.state}
+            onClick={handleBookmark}>
+            <Icon name="bookmark-fill" />
+            <span style={{ paddingLeft: '10px' }}>{bookmarkState.count}</span>
+          </Button>
+          {source === 'question' && data?.isPublic === false && (
+            <Button variant="outline-secondary ms-2" disabled>
+              {t('question_detail.question_private')}
+            </Button>
+          )}
+        </>
       )}
     </div>
   );

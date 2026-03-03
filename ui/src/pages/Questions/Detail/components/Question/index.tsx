@@ -218,6 +218,7 @@ const Index: FC<Props> = ({ data, initPage, hasAnswer, isLogged }) => {
           votesCount: data?.vote_count,
           collected: data?.collected,
           collectCount: data?.collection_count,
+          isPublic: data?.is_public ?? true,
           username: data.user_info?.username,
         }}
       />
