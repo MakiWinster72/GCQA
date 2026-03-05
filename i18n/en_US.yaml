@@ -811,16 +811,7 @@ ui:
   how_to_format:
     title: How to Format
     desc: >-
-      <ul class="mb-0"><li><p class="mb-2">mention a post: <code>#post_id</code></p></li>
-      <li><p class="mb-2">to make links</p><pre
-      class="mb-2"><code>&lt;https://url.com&gt;<br/><br/>[Title](https://url.com)</code></pre></li><li><p
-      class="mb-2">put returns between paragraphs</p></li><li><p
-      class="mb-2"><em>_italic_</em> or **<strong>bold</strong>**</p></li><li><p
-      class="mb-2">indent code by 4 spaces</p></li><li><p class="mb-2">quote by
-      placing <code>&gt;</code> at start of line</p></li><li><p
-      class="mb-2">backtick escapes <code>`like _this_`</code></p></li><li><p
-      class="mb-2">create code fences with backticks <code>`</code></p><pre
-      class="mb-0"><code>```<br/>code here<br/>```</code></pre></li></ul>
+      <p class="mb-2">Use Markdown syntax</p><pre class="mb-2"><code># Heading 1<br/>## Heading 2</code></pre><pre class="mb-2"><code>Add links<br/>&lt;https://url.com&gt;<br/>[Title](https://url.com)</code></pre><pre class="mb-2"><code>**Bold**<br/>*Italic*</code></pre><p class="mb-2">Place <code>&gt;</code> at the start of a line to quote, for example:</p><blockquote class="mb-0">This is a quote</blockquote>
   pagination:
     prev: Prev
     next: Next
